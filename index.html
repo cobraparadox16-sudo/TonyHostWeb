@@ -1,0 +1,3343 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1"><style>:root{color-scheme:light}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>The Tony Verse Directory</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Tektur:wght@500;700;900&family=Manrope:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap');
+
+  :root{
+    --bg:#060907;
+    --bg-raised:#0c1310;
+    --bg-card:#0e1712;
+    --line:#1c2b20;
+    --line-bright:#2c4630;
+    --accent:#9dff45;
+    --accent-soft:#c9ff9c;
+    --accent-dim:#4c7a2a;
+    --ink:#eaf3e6;
+    --ink-dim:#a9bba3;
+    --ink-faint:#6c7d68;
+    --glow: 0 0 40px rgba(157,255,69,0.25);
+  }
+
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  html{scroll-behavior:smooth;}
+  body{
+    background:var(--bg);
+    color:var(--ink);
+    font-family:'Manrope', system-ui, sans-serif;
+    -webkit-font-smoothing:antialiased;
+    overflow-x:hidden;
+    position:relative;
+  }
+
+  /* ambient scanline / noise field */
+  body::before{
+    content:"";
+    position:fixed;
+    inset:0;
+    pointer-events:none;
+    z-index:1;
+    background:
+      repeating-linear-gradient(0deg, rgba(157,255,69,0.028) 0px, rgba(157,255,69,0.028) 1px, transparent 1px, transparent 3px);
+    mix-blend-mode:screen;
+  }
+  body::after{
+    content:"";
+    position:fixed;
+    inset:-10% -10%;
+    pointer-events:none;
+    z-index:0;
+    background:
+      radial-gradient(ellipse 60% 45% at 18% 8%, rgba(157,255,69,0.10), transparent 60%),
+      radial-gradient(ellipse 50% 40% at 90% 70%, rgba(157,255,69,0.06), transparent 60%);
+  }
+
+  main{position:relative;z-index:2;}
+
+  .wrap{
+    max-width:1080px;
+    margin:0 auto;
+    padding:0 24px;
+  }
+
+  .eyebrow{
+    font-family:'Space Mono', monospace;
+    font-size:0.72rem;
+    letter-spacing:0.22em;
+    text-transform:uppercase;
+    color:var(--accent-dim);
+  }
+
+  /* ---------- AMBIENT SNAKES ---------- */
+  /* Each snake sits still and invisible for most of a long cycle, then slithers
+     across the screen along a curved path and fades back out — an occasional
+     surprise rather than a constant distraction. */
+  .snake{
+    position:fixed;
+    top:0;
+    left:0;
+    width:150px;
+    height:auto;
+    pointer-events:none;
+    z-index:5;
+    opacity:0;
+    will-change:offset-distance, opacity;
+  }
+  .snake-body{
+    fill:none;
+    stroke:var(--accent);
+    stroke-width:3;
+    stroke-linecap:round;
+    stroke-linejoin:round;
+  }
+  .snake-head{fill:var(--accent);}
+  .snake-tongue{stroke:var(--accent-soft); stroke-width:1.4; stroke-linecap:round;}
+
+  .snake-a{
+    offset-path:path('M -160,140 C 220,40 420,260 700,120 S 1120,240 1500,90');
+    offset-rotate:auto;
+    offset-distance:0%;
+    filter:drop-shadow(0 0 6px rgba(157,255,69,0.45));
+    animation:slither-a 42s ease-in-out infinite;
+  }
+  .snake-b{
+    width:110px;
+    offset-path:path('M 1500,520 C 1150,620 950,440 650,560 S 200,460 -160,600');
+    offset-rotate:auto;
+    offset-distance:0%;
+    filter:drop-shadow(0 0 5px rgba(157,255,69,0.4));
+    animation:slither-b 55s ease-in-out infinite;
+    animation-delay:14s;
+  }
+  @keyframes slither-a{
+    0%{ offset-distance:0%; opacity:0; }
+    2%{ opacity:0.9; }
+    13%{ offset-distance:100%; opacity:0.9; }
+    16%{ opacity:0; }
+    100%{ offset-distance:100%; opacity:0; }
+  }
+  @keyframes slither-b{
+    0%{ offset-distance:0%; opacity:0; }
+    2%{ opacity:0.85; }
+    11%{ offset-distance:100%; opacity:0.85; }
+    14%{ opacity:0; }
+    100%{ offset-distance:100%; opacity:0; }
+  }
+  @media (max-width:640px){
+    .snake{width:100px;}
+    .snake-b{width:76px;}
+  }
+
+  /* ---------- HERO ---------- */
+  .hero{
+    padding:88px 0 96px;
+    display:grid;
+    grid-template-columns:minmax(220px,320px) 1fr;
+    gap:56px;
+    align-items:center;
+  }
+  .emblem-frame{
+    position:relative;
+    border-radius:50%;
+    aspect-ratio:1/1;
+    box-shadow:var(--glow);
+  }
+  .emblem-frame img{
+    display:block;
+    width:100%;
+    height:100%;
+    border-radius:50%;
+    object-fit:cover;
+    filter:saturate(1.05) contrast(1.03);
+  }
+  .emblem-frame::after{
+    content:"";
+    position:absolute;
+    inset:-6px;
+    border-radius:50%;
+    border:1px solid rgba(157,255,69,0.35);
+    animation:pulse-ring 4.5s ease-in-out infinite;
+  }
+  @keyframes pulse-ring{
+    0%,100%{box-shadow:0 0 0 0 rgba(157,255,69,0.22);}
+    50%{box-shadow:0 0 0 10px rgba(157,255,69,0);}
+  }
+
+  .hero-copy h1{
+    font-family:'Tektur', sans-serif;
+    font-weight:900;
+    font-size:clamp(2.6rem, 6.4vw, 5.2rem);
+    line-height:0.94;
+    letter-spacing:-0.01em;
+    margin:14px 0 0;
+    text-wrap:balance;
+    color:var(--ink);
+    text-shadow:0 0 18px rgba(157,255,69,0.35), 0 0 2px rgba(157,255,69,0.5);
+    animation:flicker-in 1.4s ease-out both;
+  }
+  .hero-copy h1 span{color:var(--accent);}
+
+  @keyframes flicker-in{
+    0%{opacity:0;}
+    6%{opacity:1;}
+    8%{opacity:0.2;}
+    10%{opacity:1;}
+    24%{opacity:0.4;}
+    26%{opacity:1;}
+    100%{opacity:1;}
+  }
+
+  .hero-copy p.tagline{
+    font-family:'Space Mono', monospace;
+    font-size:clamp(0.92rem, 1.6vw, 1.05rem);
+    color:var(--ink-dim);
+    margin:22px 0 0;
+    max-width:46ch;
+    letter-spacing:0.01em;
+  }
+
+  .hero-actions{
+    margin-top:34px;
+    display:flex;
+    gap:14px;
+    flex-wrap:wrap;
+  }
+
+  .btn{
+    display:inline-flex;
+    align-items:center;
+    gap:10px;
+    font-family:'Space Mono', monospace;
+    font-size:0.82rem;
+    letter-spacing:0.06em;
+    text-transform:uppercase;
+    text-decoration:none;
+    padding:13px 22px;
+    border-radius:3px;
+    border:1px solid var(--line-bright);
+    color:var(--ink);
+    transition:border-color 0.2s ease, transform 0.15s ease, background 0.2s ease;
+  }
+  .btn:hover{border-color:var(--accent); transform:translateY(-1px);}
+  .btn:focus-visible{outline:2px solid var(--accent); outline-offset:3px;}
+  .btn-solid{
+    background:var(--accent);
+    border-color:var(--accent);
+    color:#05170a;
+    font-weight:700;
+  }
+  .btn-solid:hover{
+    background:var(--accent-soft);
+    border-color:var(--accent-soft);
+  }
+
+  /* ---------- SECTION HEADERS ---------- */
+  section{padding:64px 0;}
+  .section-head{
+    display:flex;
+    align-items:baseline;
+    justify-content:space-between;
+    gap:24px;
+    border-bottom:1px solid var(--line);
+    padding-bottom:18px;
+    margin-bottom:40px;
+    flex-wrap:wrap;
+  }
+  .section-head h2{
+    font-family:'Tektur', sans-serif;
+    font-weight:700;
+    font-size:clamp(1.5rem, 3vw, 2.1rem);
+    margin:6px 0 0;
+    color:var(--ink);
+  }
+  .section-head .count{
+    font-family:'Space Mono', monospace;
+    font-size:0.8rem;
+    color:var(--ink-faint);
+  }
+
+  /* ---------- CLIP SECTIONS (collapsible) ---------- */
+  .clip-section{
+    border:1px solid var(--line);
+    background:var(--bg-card);
+  }
+  .clip-section summary{
+    cursor:pointer;
+    list-style:none;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:24px;
+    padding:24px 28px;
+    flex-wrap:wrap;
+    transition:background 0.2s ease;
+  }
+  .clip-section summary::-webkit-details-marker{display:none;}
+  .clip-section summary::marker{content:"";}
+  .clip-section summary:hover, .clip-section[open] summary{background:var(--bg-raised);}
+  .clip-section summary:focus-visible{outline:2px solid var(--accent); outline-offset:-2px;}
+  .clip-section summary h2{
+    font-family:'Tektur', sans-serif;
+    font-weight:700;
+    font-size:clamp(1.5rem, 3vw, 2.1rem);
+    margin:6px 0 0;
+    color:var(--ink);
+  }
+  .clip-summary-right{
+    display:flex;
+    align-items:center;
+    gap:14px;
+  }
+  .clip-section[open] summary{border-bottom:1px solid var(--line);}
+  .clip-section .streams-grid{
+    border:none;
+    border-top:1px solid var(--line);
+  }
+  .clip-section[open] .bio-indicator{background:var(--accent); border-color:var(--accent); color:#05170a;}
+  .clip-section[open] .bio-indicator svg{transform:rotate(45deg);}
+
+  @media (max-width:720px){
+    .clip-section summary{padding:18px 20px;}
+  }
+
+  /* ---------- CREW ---------- */
+  .crew{
+    display:flex;
+    flex-direction:column;
+    gap:1px;
+    background:var(--line);
+    border:1px solid var(--line);
+  }
+  .crew-card{
+    background:var(--bg-card);
+    padding:22px 30px;
+    display:grid;
+    grid-template-columns:64px 1fr auto;
+    align-items:center;
+    gap:22px;
+    position:relative;
+    transition:background 0.2s ease;
+    border-left:2px solid transparent;
+  }
+  .crew-card:hover{background:var(--bg-raised); border-left-color:var(--accent);}
+
+  .crew-avatar{
+    width:64px;
+    height:64px;
+    border-radius:50%;
+    object-fit:cover;
+    border:1px solid var(--line-bright);
+    flex-shrink:0;
+    display:block;
+  }
+
+  .crew-name{
+    font-family:'Tektur', sans-serif;
+    font-weight:700;
+    font-size:clamp(1.05rem, 2.4vw, 1.4rem);
+    color:var(--ink);
+  }
+  .crew-handle{
+    display:block;
+    font-family:'Space Mono', monospace;
+    font-size:0.78rem;
+    color:var(--ink-faint);
+    margin-top:5px;
+    letter-spacing:0.02em;
+  }
+
+  .platform-tag{
+    font-family:'Space Mono', monospace;
+    font-size:0.68rem;
+    letter-spacing:0.14em;
+    text-transform:uppercase;
+    color:var(--accent-dim);
+    border:1px solid var(--line-bright);
+    padding:4px 9px;
+    border-radius:2px;
+    white-space:nowrap;
+  }
+
+  .crew-card .btn{padding:10px 16px; font-size:0.74rem;}
+  .crew-actions{
+    display:flex;
+    flex-direction:column;
+    gap:8px;
+    align-items:flex-end;
+  }
+  .crew-handle + .crew-handle{margin-top:3px;}
+
+  .crew-discord{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    font-family:'Space Mono', monospace;
+    font-size:0.78rem;
+    color:var(--ink-faint);
+    margin-top:6px;
+    letter-spacing:0.02em;
+  }
+  .copy-btn{
+    background:none;
+    border:1px solid var(--line-bright);
+    color:var(--ink-dim);
+    font-family:'Space Mono', monospace;
+    font-size:0.62rem;
+    letter-spacing:0.06em;
+    text-transform:uppercase;
+    padding:3px 8px;
+    border-radius:2px;
+    cursor:pointer;
+    transition:border-color 0.2s ease, color 0.2s ease;
+  }
+  .copy-btn:hover{border-color:var(--accent); color:var(--accent-soft);}
+  .copy-btn:focus-visible{outline:2px solid var(--accent); outline-offset:2px;}
+  .copy-btn.is-copied{border-color:var(--accent); color:var(--accent-soft);}
+
+  /* ---------- TOP TIPPERS WIDGET ---------- */
+  .tipper-widget{
+    position:absolute;
+    top:20px;
+    right:20px;
+    z-index:35;
+    width:216px;
+    background:var(--bg-card);
+    border:1px solid var(--line-bright);
+    box-shadow:0 12px 28px rgba(0,0,0,0.45);
+    padding:14px 16px;
+  }
+  .tipper-widget-head{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    padding-bottom:10px;
+    margin-bottom:10px;
+    border-bottom:1px solid var(--line);
+  }
+  .tipper-widget-icon{font-size:0.95rem; line-height:1;}
+  .tipper-widget-title{
+    font-family:'Space Mono', monospace;
+    font-size:0.66rem;
+    letter-spacing:0.12em;
+    text-transform:uppercase;
+    color:var(--ink-faint);
+  }
+  .tipper-widget-list{
+    list-style:none;
+    margin:0;
+    padding:0;
+    display:flex;
+    flex-direction:column;
+    gap:8px;
+  }
+  .tipper-widget-list li{
+    display:flex;
+    align-items:center;
+    gap:10px;
+  }
+  .tw-rank{
+    width:20px;
+    height:20px;
+    border-radius:50%;
+    background:var(--bg-raised);
+    border:1px solid var(--line-bright);
+    color:var(--ink-dim);
+    font-family:'Tektur', sans-serif;
+    font-weight:700;
+    font-size:0.68rem;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    flex-shrink:0;
+  }
+  .tw-rank-1{
+    background:var(--accent);
+    border-color:var(--accent);
+    color:#05170a;
+    box-shadow:0 0 8px rgba(157,255,69,0.5);
+  }
+  .tw-name{
+    font-family:'Space Mono', monospace;
+    font-size:0.76rem;
+    color:var(--ink);
+    overflow:hidden;
+    text-overflow:ellipsis;
+    white-space:nowrap;
+  }
+
+  @media (max-width:640px){
+    .tipper-widget{width:150px; padding:10px 12px;}
+    .tipper-widget-title{font-size:0.58rem;}
+    .tw-rank{width:16px; height:16px; font-size:0.6rem;}
+    .tw-name{font-size:0.68rem;}
+  }
+  @media (max-width:420px){
+    .tipper-widget-list li:nth-child(n+4){display:none;}
+  }
+
+  /* ---------- STREAMS ---------- */
+  .streams-grid{
+    display:grid;
+    grid-template-columns:repeat(4, 1fr);
+    gap:1px;
+    background:var(--line);
+    border:1px solid var(--line);
+  }
+  .stream-card{
+    background:var(--bg-card);
+    display:flex;
+    flex-direction:column;
+    text-decoration:none;
+    color:inherit;
+    transition:background 0.2s ease;
+  }
+  .stream-card:hover{background:var(--bg-raised);}
+  .stream-card:hover .stream-title{filter:brightness(1.2);}
+  .stream-card:focus-visible{outline:2px solid var(--accent); outline-offset:-2px;}
+
+  /* Text-only "thumbnails" — a glowing title stands in for a picture. Each
+     of the three clip sections below sets --glow on its own .streams-grid
+     so every card in that section glows a different signature colour. */
+  .stream-title-wrap{
+    position:relative;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    width:100%;
+    aspect-ratio:16/9;
+    padding:22px 18px;
+    overflow:hidden;
+    text-align:center;
+    background:radial-gradient(circle at 50% 42%, color-mix(in srgb, var(--glow) 16%, transparent), var(--bg-raised) 72%);
+    border-bottom:1px solid var(--line);
+  }
+  .stream-title{
+    font-family:'Tektur', sans-serif;
+    font-weight:900;
+    font-size:clamp(0.95rem, 2.1vw, 1.3rem);
+    line-height:1.28;
+    letter-spacing:0.02em;
+    text-transform:uppercase;
+    color:var(--glow);
+    text-shadow:0 0 6px var(--glow), 0 0 16px var(--glow), 0 0 36px color-mix(in srgb, var(--glow) 65%, transparent);
+    text-wrap:balance;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:10px;
+  }
+  .stream-title .platform-tag{text-shadow:none;}
+  .stream-view-badge{
+    position:absolute;
+    right:8px;
+    bottom:8px;
+    background:rgba(6,9,7,0.82);
+    border:1px solid var(--line-bright);
+    color:var(--accent-soft);
+    font-family:'Space Mono', monospace;
+    font-size:0.66rem;
+    letter-spacing:0.03em;
+    padding:3px 7px;
+    border-radius:2px;
+    display:none;
+    align-items:center;
+    gap:4px;
+  }
+  .stream-view-badge.is-visible{display:inline-flex;}
+  .stream-view-badge svg{width:10px; height:10px; fill:currentColor;}
+
+  #streams .streams-grid{--glow:#9dff45;}
+  #apple-clipz .streams-grid{--glow:#ffc933;}
+  #tony-schitzo .streams-grid{--glow:#38c6ff;}
+
+  @media (max-width:720px){
+    .streams-grid{grid-template-columns:repeat(2, 1fr);}
+  }
+  @media (max-width:420px){
+    .streams-grid{grid-template-columns:1fr;}
+  }
+
+  /* ---------- STATS ---------- */
+  .stats-head-row{
+    display:flex;
+    align-items:center;
+    gap:10px;
+  }
+  .live-dot{
+    width:7px;
+    height:7px;
+    border-radius:50%;
+    background:var(--accent);
+    box-shadow:0 0 8px rgba(157,255,69,0.8);
+    flex-shrink:0;
+    animation:live-pulse 2.2s ease-in-out infinite;
+  }
+  @keyframes live-pulse{
+    0%,100%{opacity:1;}
+    50%{opacity:0.35;}
+  }
+  .refresh-btn{
+    background:none;
+    border:1px solid var(--line-bright);
+    color:var(--ink-dim);
+    font-family:'Space Mono', monospace;
+    font-size:0.7rem;
+    letter-spacing:0.06em;
+    text-transform:uppercase;
+    padding:7px 12px;
+    border-radius:2px;
+    cursor:pointer;
+    transition:border-color 0.2s ease, color 0.2s ease;
+  }
+  .refresh-btn:hover{border-color:var(--accent); color:var(--accent-soft);}
+  .refresh-btn:focus-visible{outline:2px solid var(--accent); outline-offset:2px;}
+  .refresh-btn:disabled{opacity:0.5; cursor:default;}
+
+  .stats-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit, minmax(200px, 1fr));
+    gap:1px;
+    background:var(--line);
+    border:1px solid var(--line);
+  }
+  .stat-tile{
+    background:var(--bg-card);
+    padding:26px 24px;
+    display:flex;
+    flex-direction:column;
+    gap:14px;
+  }
+  .stat-head{
+    display:flex;
+    align-items:center;
+    gap:10px;
+  }
+  .stat-avatar{
+    width:36px;
+    height:36px;
+    border-radius:50%;
+    object-fit:cover;
+    border:1px solid var(--line-bright);
+    flex-shrink:0;
+  }
+  .stat-name{
+    font-family:'Space Mono', monospace;
+    font-size:0.72rem;
+    letter-spacing:0.05em;
+    color:var(--ink-dim);
+    overflow:hidden;
+    text-overflow:ellipsis;
+    white-space:nowrap;
+  }
+  .stat-value{
+    font-family:'Tektur', sans-serif;
+    font-weight:900;
+    font-size:clamp(1.5rem, 3vw, 2.1rem);
+    color:var(--accent);
+    line-height:1;
+    font-variant-numeric:tabular-nums;
+  }
+  .stat-label{
+    display:block;
+    font-family:'Space Mono', monospace;
+    font-size:0.66rem;
+    letter-spacing:0.1em;
+    text-transform:uppercase;
+    color:var(--ink-faint);
+    margin-top:6px;
+  }
+  .stat-views{
+    font-family:'Space Mono', monospace;
+    font-size:0.74rem;
+    color:var(--ink-faint);
+    font-variant-numeric:tabular-nums;
+  }
+  .stat-live-note{
+    font-family:'Space Mono', monospace;
+    font-size:0.66rem;
+    color:var(--accent-dim);
+    letter-spacing:0.02em;
+  }
+  .stat-live-link{
+    display:none;
+    flex-direction:column;
+    gap:5px;
+    margin-top:12px;
+    padding-top:12px;
+    border-top:1px solid var(--line);
+    text-decoration:none;
+  }
+  .stat-live-link.is-visible{display:flex;}
+  .stat-live-badge{
+    font-family:'Space Mono', monospace;
+    font-size:0.64rem;
+    letter-spacing:0.1em;
+    text-transform:uppercase;
+    color:var(--ink-faint);
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+  }
+  .stat-live-link.is-live .stat-live-badge{color:#ff5252;}
+  .stat-live-link.is-live .stat-live-badge::before{
+    content:"";
+    width:7px;
+    height:7px;
+    border-radius:50%;
+    background:#ff5252;
+    animation:stat-live-pulse 1.4s ease-in-out infinite;
+  }
+  @keyframes stat-live-pulse{
+    0%, 100%{opacity:1;}
+    50%{opacity:0.25;}
+  }
+  .stat-live-link.is-upcoming .stat-live-badge{color:#ffb545;}
+  .stat-live-link.is-upcoming .stat-live-badge::before{
+    content:"";
+    width:7px;
+    height:7px;
+    border-radius:50%;
+    background:#ffb545;
+  }
+  .stat-live-title{
+    font-family:'Manrope', system-ui, sans-serif;
+    font-size:0.8rem;
+    line-height:1.35;
+    color:var(--ink);
+  }
+  .stat-live-link:hover .stat-live-title{color:var(--accent);}
+  .stat-live-viewers{
+    display:none;
+    font-family:'Space Mono', monospace;
+    font-size:0.7rem;
+    letter-spacing:0.03em;
+    color:#ff8080;
+    font-variant-numeric:tabular-nums;
+  }
+  .stat-live-viewers.is-visible{display:block;}
+  .stat-trend{
+    display:block;
+    font-family:'Space Mono', monospace;
+    font-size:0.7rem;
+    color:var(--ink-dim);
+    font-variant-numeric:tabular-nums;
+  }
+  .stat-trend.is-up{color:var(--accent-soft);}
+  .stat-trend:empty{display:none;}
+  .stat-head .live-dot{margin-left:2px;}
+  .stats-note{
+    font-family:'Space Mono', monospace;
+    font-size:0.72rem;
+    color:var(--ink-faint);
+    margin:14px 2px 0;
+  }
+
+  /* ---------- SCHEDULE ---------- */
+  .schedule-wrap{
+    overflow-x:auto;
+    border:1px solid var(--line);
+    background:var(--bg-card);
+  }
+  table.schedule{
+    width:100%;
+    min-width:720px;
+    border-collapse:collapse;
+  }
+  .schedule th, .schedule td{
+    padding:22px 26px;
+    border-bottom:1px solid var(--line);
+    text-align:center;
+    vertical-align:middle;
+    font-weight:400;
+  }
+  .schedule th:first-child, .schedule td:first-child{
+    text-align:left;
+    padding-left:28px;
+  }
+  .schedule thead th{
+    font-family:'Space Mono', monospace;
+    font-size:0.68rem;
+    letter-spacing:0.16em;
+    text-transform:uppercase;
+    color:var(--ink-faint);
+    padding-top:18px;
+    padding-bottom:18px;
+    border-bottom:1px solid var(--line-bright);
+  }
+  .schedule thead th.today-col{color:var(--accent-soft);}
+  .schedule tbody tr:last-child th, .schedule tbody tr:last-child td{
+    border-bottom:none;
+  }
+  .schedule tbody tr{
+    transition:background 0.2s ease;
+  }
+  .schedule tbody tr:hover{
+    background:var(--bg-raised);
+  }
+  .schedule-host{
+    display:flex;
+    align-items:center;
+    gap:14px;
+    font-family:'Tektur', sans-serif;
+    font-weight:700;
+    font-size:0.95rem;
+    color:var(--ink);
+    white-space:nowrap;
+  }
+  .schedule-avatar{
+    width:36px;
+    height:36px;
+    border-radius:50%;
+    object-fit:cover;
+    border:1px solid var(--line-bright);
+    flex-shrink:0;
+  }
+  .schedule-live-badge{
+    display:none;
+    align-items:center;
+    gap:6px;
+    font-family:'Space Mono', monospace;
+    font-weight:700;
+    font-size:0.62rem;
+    letter-spacing:0.1em;
+    text-transform:uppercase;
+    color:#ff5252;
+    border:1px solid rgba(255,82,82,0.5);
+    border-radius:3px;
+    padding:3px 8px;
+  }
+  .schedule-live-badge.is-visible{display:inline-flex;}
+  .schedule-live-badge::before{
+    content:"";
+    width:6px;
+    height:6px;
+    border-radius:50%;
+    background:#ff5252;
+    animation:stat-live-pulse 1.4s ease-in-out infinite;
+  }
+  .slot{
+    display:inline-block;
+    font-family:'Space Mono', monospace;
+    font-size:0.78rem;
+    color:var(--accent-soft);
+    background:rgba(157,255,69,0.09);
+    border:1px solid rgba(157,255,69,0.28);
+    padding:8px 14px;
+    border-radius:2px;
+    white-space:nowrap;
+    letter-spacing:0.01em;
+  }
+  .slot-empty{
+    font-family:'Space Mono', monospace;
+    font-size:0.78rem;
+    color:var(--ink-faint);
+  }
+  td.today-col{
+    background:rgba(157,255,69,0.05);
+  }
+  .schedule-note{
+    font-family:'Space Mono', monospace;
+    font-size:0.72rem;
+    color:var(--ink-faint);
+    margin:16px 2px 0;
+    display:flex;
+    align-items:center;
+    gap:8px;
+  }
+
+  /* ---------- MOVIE NIGHT ---------- */
+  .movie-banner{
+    border:1px solid var(--line-bright);
+    background:var(--bg-card);
+    padding:56px 32px;
+    text-align:center;
+    position:relative;
+    overflow:hidden;
+  }
+  .movie-banner::before{
+    content:"";
+    position:absolute;
+    inset:0;
+    background:radial-gradient(circle at 50% 0%, rgba(157,255,69,0.16), transparent 65%);
+    pointer-events:none;
+  }
+  .movie-eyebrow{
+    font-family:'Space Mono', monospace;
+    font-size:0.72rem;
+    letter-spacing:0.18em;
+    text-transform:uppercase;
+    color:var(--ink-faint);
+    margin:0;
+    position:relative;
+  }
+  .movie-title{
+    font-family:'Tektur', sans-serif;
+    font-weight:900;
+    font-size:clamp(1.6rem, 5.4vw, 3.1rem);
+    letter-spacing:0.03em;
+    color:var(--accent);
+    text-shadow:0 0 34px rgba(157,255,69,0.4);
+    margin:10px 0 0;
+    position:relative;
+  }
+  .movie-sub{
+    font-family:'Space Mono', monospace;
+    color:var(--ink-dim);
+    margin:16px 0 0;
+    font-size:0.86rem;
+    position:relative;
+  }
+  .movie-link{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    width:76px;
+    height:76px;
+    border-radius:50%;
+    border:1px solid var(--line-bright);
+    background:var(--bg-raised);
+    font-size:2.1rem;
+    line-height:1;
+    margin:26px 0 0;
+    text-decoration:none;
+    position:relative;
+    transition:border-color 0.2s ease, transform 0.15s ease, box-shadow 0.2s ease;
+  }
+  .movie-link:hover{
+    border-color:var(--accent);
+    transform:translateY(-3px);
+    box-shadow:0 0 26px rgba(157,255,69,0.4);
+  }
+  .movie-link:focus-visible{outline:2px solid var(--accent); outline-offset:4px;}
+
+  /* ---------- MARVEL / SPIDER-MAN ---------- */
+  .marvel-banner{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:14px;
+    border:1px solid #3a5bb8;
+    background:linear-gradient(135deg, #8c0d13 0%, #ed1d24 42%, #1c3f94 100%);
+    padding:56px 32px;
+    text-align:center;
+    text-decoration:none;
+    position:relative;
+    overflow:hidden;
+    transition:border-color 0.2s ease, transform 0.15s ease, box-shadow 0.2s ease;
+  }
+  .marvel-banner::before{
+    content:"";
+    position:absolute;
+    inset:0;
+    background:
+      repeating-linear-gradient(45deg, rgba(255,255,255,0.09) 0 2px, transparent 2px 26px),
+      repeating-linear-gradient(-45deg, rgba(255,255,255,0.09) 0 2px, transparent 2px 26px);
+    pointer-events:none;
+  }
+  .marvel-banner:hover{
+    border-color:#fff;
+    transform:translateY(-3px);
+    box-shadow:0 0 30px rgba(237,29,36,0.45), 0 0 30px rgba(28,63,148,0.45);
+  }
+  .marvel-banner:focus-visible{outline:2px solid #fff; outline-offset:4px;}
+  .marvel-emoji{
+    font-size:2.4rem;
+    line-height:1;
+    position:relative;
+  }
+  .marvel-title{
+    font-family:'Tektur', sans-serif;
+    font-weight:900;
+    font-size:clamp(1.7rem, 5.6vw, 3.3rem);
+    letter-spacing:0.1em;
+    color:#fff;
+    text-shadow:0 0 20px rgba(237,29,36,0.85), 0 0 34px rgba(28,63,148,0.65);
+    position:relative;
+  }
+  .marvel-sub{
+    font-family:'Space Mono', monospace;
+    color:#f4f4f4;
+    font-size:0.86rem;
+    letter-spacing:0.04em;
+    position:relative;
+  }
+
+  .marvel-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit, minmax(240px, 1fr));
+    gap:20px;
+  }
+  @media (max-width:720px){
+    .marvel-grid{grid-template-columns:1fr;}
+  }
+
+  /* Doctor Doom palette: Latverian forest green + gunmetal armor. */
+  .marvel-banner--doom{
+    border:1px solid #7c8790;
+    background:linear-gradient(135deg, #0b2f14 0%, #1c5c30 42%, #4a4f54 100%);
+  }
+  .marvel-banner--doom::before{
+    background:
+      repeating-linear-gradient(45deg, rgba(180,190,196,0.10) 0 2px, transparent 2px 26px),
+      repeating-linear-gradient(-45deg, rgba(180,190,196,0.10) 0 2px, transparent 2px 26px);
+  }
+  .marvel-banner--doom:hover{
+    border-color:#c9d0d4;
+    box-shadow:0 0 30px rgba(28,92,48,0.5), 0 0 30px rgba(154,160,166,0.4);
+  }
+  .marvel-banner--doom:focus-visible{outline:2px solid #c9d0d4; outline-offset:4px;}
+  .marvel-banner--doom .marvel-title{
+    color:#e3e6e8;
+    text-shadow:0 0 20px rgba(28,92,48,0.9), 0 0 34px rgba(154,160,166,0.6);
+  }
+
+  /* ---------- THE NAZZ TAPES ---------- */
+  .tapes-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit, minmax(240px, 1fr));
+    gap:20px;
+  }
+  @media (max-width:900px){
+    .tapes-grid{grid-template-columns:repeat(2, 1fr);}
+  }
+  @media (max-width:520px){
+    .tapes-grid{grid-template-columns:1fr;}
+  }
+  .tapes-banner{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:14px;
+    border:1px solid var(--line-bright);
+    background:var(--bg-card);
+    padding:56px 32px;
+    text-align:center;
+    text-decoration:none;
+    position:relative;
+    overflow:hidden;
+    transition:border-color 0.2s ease, transform 0.15s ease, box-shadow 0.2s ease;
+  }
+  .tapes-banner::before{
+    content:"";
+    position:absolute;
+    inset:0;
+    background:radial-gradient(circle at 50% 0%, rgba(157,255,69,0.16), transparent 65%);
+    pointer-events:none;
+  }
+  .tapes-banner:hover{
+    border-color:var(--accent);
+    transform:translateY(-3px);
+    box-shadow:0 0 34px rgba(157,255,69,0.32);
+  }
+  .tapes-banner:focus-visible{outline:2px solid var(--accent); outline-offset:4px;}
+  .tapes-emoji{
+    font-size:2.4rem;
+    line-height:1;
+    position:relative;
+  }
+  .tapes-title{
+    font-family:'Tektur', sans-serif;
+    font-weight:900;
+    font-size:clamp(1.7rem, 5.6vw, 3.3rem);
+    letter-spacing:0.1em;
+    color:var(--accent);
+    text-shadow:0 0 34px rgba(157,255,69,0.45);
+    position:relative;
+  }
+  .tapes-sub{
+    font-family:'Space Mono', monospace;
+    color:var(--ink-dim);
+    font-size:0.86rem;
+    letter-spacing:0.04em;
+    position:relative;
+  }
+
+  /* Host Tools reuses the tapes-banner pattern but with longer, sentence-style
+     titles ("HOW TO USE CHAT GPT") instead of the two/three-word tape names,
+     so it gets its own smaller, tighter type scale to keep every card the
+     same height and stop long titles from overflowing or wrapping huge. */
+  #host-tools .tapes-banner{padding:36px 26px;}
+  #host-tools .tapes-emoji{font-size:2rem;}
+  #host-tools .tapes-title{
+    font-size:clamp(1rem, 2.6vw, 1.3rem);
+    letter-spacing:0.03em;
+    line-height:1.3;
+    text-wrap:balance;
+  }
+
+  /* ---------- COMMUNITY (server tracker + tree watcher) ---------- */
+  .community-grid{
+    display:grid;
+    grid-template-columns:repeat(2, 1fr);
+    gap:1px;
+    background:var(--line);
+    border:1px solid var(--line);
+  }
+  .tracker-card, .tree-card{
+    background:var(--bg-card);
+    padding:28px 26px;
+    display:flex;
+    flex-direction:column;
+    gap:18px;
+  }
+  .tracker-head{
+    display:flex;
+    align-items:center;
+    gap:14px;
+  }
+  .tracker-icon{
+    width:48px;
+    height:48px;
+    border-radius:50%;
+    object-fit:cover;
+    border:1px solid var(--line-bright);
+    flex-shrink:0;
+  }
+  .tree-emoji{
+    width:48px;
+    height:48px;
+    border-radius:50%;
+    border:1px solid var(--line-bright);
+    background:var(--bg-raised);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:1.5rem;
+    flex-shrink:0;
+  }
+  .tracker-name{
+    display:block;
+    font-family:'Tektur', sans-serif;
+    font-weight:700;
+    font-size:1.05rem;
+    color:var(--ink);
+  }
+  .tracker-sub{
+    display:block;
+    font-family:'Space Mono', monospace;
+    font-size:0.7rem;
+    color:var(--ink-faint);
+    margin-top:4px;
+    letter-spacing:0.02em;
+  }
+  .tracker-head .live-dot{margin-left:auto;}
+  .tracker-stats{
+    display:flex;
+    gap:32px;
+  }
+  .tracker-value{
+    display:block;
+    font-family:'Tektur', sans-serif;
+    font-weight:900;
+    font-size:clamp(1.4rem, 2.8vw, 1.9rem);
+    color:var(--accent);
+    line-height:1;
+    font-variant-numeric:tabular-nums;
+  }
+  .tracker-label{
+    display:block;
+    font-family:'Space Mono', monospace;
+    font-size:0.66rem;
+    letter-spacing:0.1em;
+    text-transform:uppercase;
+    color:var(--ink-faint);
+    margin-top:6px;
+  }
+  .tracker-card.is-offline .tracker-value{color:var(--ink-faint);}
+  .tracker-card .btn{align-self:flex-start;}
+  .tree-timer{
+    font-family:'Space Mono', monospace;
+    font-weight:700;
+    font-size:clamp(1.15rem, 2.4vw, 1.5rem);
+    color:var(--accent-soft);
+    margin:0;
+    font-variant-numeric:tabular-nums;
+    letter-spacing:0.01em;
+  }
+  .tree-rank{
+    font-family:'Space Mono', monospace;
+    font-size:0.8rem;
+    color:var(--ink-dim);
+    margin:0;
+  }
+  .tree-rank strong{color:var(--accent-soft);}
+
+  @media (max-width:720px){
+    .community-grid{grid-template-columns:1fr;}
+  }
+
+  /* ---------- CTA BAND ---------- */
+  .cta-band{
+    background:var(--accent);
+    padding:0;
+  }
+  .cta-inner{
+    max-width:1080px;
+    margin:0 auto;
+    padding:56px 24px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:24px;
+    flex-wrap:wrap;
+  }
+  .cta-inner h2{
+    font-family:'Tektur', sans-serif;
+    font-weight:900;
+    font-size:clamp(1.6rem, 3.6vw, 2.4rem);
+    color:#05170a;
+    margin:0;
+    max-width:20ch;
+  }
+  .cta-inner p{
+    font-family:'Space Mono', monospace;
+    color:#0d2a13;
+    margin:8px 0 0;
+    font-size:0.86rem;
+  }
+  .cta-band .btn-solid{
+    background:#05170a;
+    border-color:#05170a;
+    color:var(--accent-soft);
+  }
+  .cta-band .btn-solid:hover{
+    background:#0d2a13;
+    border-color:#0d2a13;
+    color:var(--accent);
+  }
+
+  /* ---------- MUSIC PLAYER ---------- */
+  .music-player{
+    position:fixed;
+    right:20px;
+    bottom:calc(20px + 44px);
+    z-index:40;
+    display:flex;
+    align-items:center;
+    gap:12px;
+    background:var(--bg-card);
+    border:1px solid var(--line-bright);
+    padding:10px 16px 10px 12px;
+    box-shadow:0 12px 32px rgba(0,0,0,0.5), var(--glow);
+    max-width:calc(100vw - 32px);
+  }
+  .music-emoji{
+    font-size:1.4rem;
+    line-height:1;
+    width:34px;
+    height:34px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    background:var(--bg-raised);
+    border:1px solid var(--line);
+    flex:none;
+  }
+  .music-meta{
+    display:flex;
+    flex-direction:column;
+    gap:2px;
+    min-width:0;
+  }
+  .music-label{
+    font-family:'Space Mono', monospace;
+    font-size:0.68rem;
+    letter-spacing:0.08em;
+    text-transform:uppercase;
+    color:var(--ink-faint);
+  }
+  .music-count{
+    font-family:'Space Mono', monospace;
+    font-size:0.72rem;
+    color:var(--ink-dim);
+  }
+  .music-controls{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    flex:none;
+  }
+  .music-btn{
+    width:36px;
+    height:36px;
+    border-radius:50%;
+    border:1px solid var(--line-bright);
+    background:var(--bg-raised);
+    color:var(--accent);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    cursor:pointer;
+    transition:background 0.15s ease, border-color 0.15s ease, transform 0.15s ease;
+    flex:none;
+    padding:0;
+  }
+  .music-btn svg{width:14px; height:14px; fill:currentColor;}
+  .music-btn:hover{
+    background:var(--accent);
+    border-color:var(--accent);
+    color:#05170a;
+  }
+  .music-btn:active{transform:scale(0.92);}
+  .music-btn.music-play{
+    width:42px;
+    height:42px;
+    border-color:var(--accent-dim);
+  }
+  .music-player.is-playing .music-emoji{
+    border-color:var(--accent);
+    box-shadow:0 0 12px rgba(157,255,69,0.35);
+  }
+
+  @media (max-width:420px){
+    .music-player{
+      left:16px;
+      right:16px;
+      bottom:calc(16px + 44px);
+      padding:8px 12px 8px 10px;
+    }
+    .music-label{display:none;}
+  }
+
+  /* ---------- BROADCAST TICKER ---------- */
+  .broadcast-ticker{
+    position:fixed;
+    left:0;
+    right:0;
+    bottom:0;
+    z-index:38;
+    display:flex;
+    align-items:stretch;
+    height:44px;
+    background:var(--bg-card);
+    border-top:1px solid var(--line-bright);
+    box-shadow:0 -8px 24px rgba(0,0,0,0.5);
+  }
+  .ticker-badge{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    flex:none;
+    padding:0 18px 0 12px;
+    background:var(--accent);
+    position:relative;
+    z-index:2;
+  }
+  .ticker-badge::after{
+    content:"";
+    position:absolute;
+    top:0;
+    right:-14px;
+    width:14px;
+    height:100%;
+    background:var(--accent);
+    clip-path:polygon(0 0, 0 100%, 100% 50%);
+  }
+  .ticker-avatar{
+    width:28px;
+    height:28px;
+    border-radius:50%;
+    object-fit:cover;
+    border:2px solid #05170a;
+    flex:none;
+    display:block;
+  }
+  .ticker-badge-text{
+    font-family:'Space Mono', monospace;
+    font-weight:700;
+    font-size:0.64rem;
+    letter-spacing:0.09em;
+    text-transform:uppercase;
+    color:#05170a;
+    white-space:nowrap;
+  }
+  .ticker-track{
+    flex:1 1 auto;
+    overflow:hidden;
+    position:relative;
+    display:flex;
+    align-items:center;
+  }
+  .ticker-track-inner{
+    display:flex;
+    width:max-content;
+    animation:ticker-scroll 22s linear infinite;
+  }
+  .ticker-content{
+    display:flex;
+    align-items:center;
+    flex-shrink:0;
+  }
+  .ticker-text{
+    font-family:'Tektur', sans-serif;
+    font-weight:800;
+    font-size:0.86rem;
+    letter-spacing:0.03em;
+    color:var(--accent-soft);
+    white-space:nowrap;
+    padding:0 18px;
+    text-shadow:0 0 18px rgba(157,255,69,0.35);
+  }
+  .ticker-sep{
+    color:var(--ink-faint);
+    font-size:0.7rem;
+    flex:none;
+  }
+  @keyframes ticker-scroll{
+    from{ transform:translateX(0); }
+    to{ transform:translateX(-50%); }
+  }
+  @media (prefers-reduced-motion: reduce){
+    .ticker-track-inner{ animation:none; }
+  }
+  @media (max-width:420px){
+    .broadcast-ticker{height:40px;}
+    .ticker-badge{padding:0 14px 0 10px;}
+    .ticker-avatar{width:24px; height:24px;}
+    .ticker-text{font-size:0.76rem; padding:0 14px;}
+  }
+
+  /* ---------- BIOGRAPHY ---------- */
+  /* Each entry is a <details class="bio-card"> — collapsed by default, the
+     story only unfolds when the headshot/name row is clicked. Just copy one
+     whole <details> block for each new person; nothing else needs to change
+     as more photos and biographies get added. */
+  .bio-list{
+    display:flex;
+    flex-direction:column;
+    gap:1px;
+    background:var(--line);
+    border:1px solid var(--line);
+  }
+  .bio-card{
+    background:var(--bg-card);
+  }
+  .bio-card summary{
+    cursor:pointer;
+    list-style:none;
+    padding:22px 30px;
+    display:flex;
+    align-items:center;
+    gap:22px;
+    transition:background 0.2s ease;
+  }
+  .bio-card summary::-webkit-details-marker{display:none;}
+  .bio-card summary::marker{content:"";}
+  .bio-card summary:hover, .bio-card[open] summary{background:var(--bg-raised);}
+  .bio-card summary:focus-visible{outline:2px solid var(--accent); outline-offset:-2px;}
+
+  .bio-portrait-wrap{
+    position:relative;
+    width:88px;
+    height:88px;
+    border-radius:50%;
+    overflow:hidden;
+    border:1px solid var(--line-bright);
+    flex-shrink:0;
+  }
+  .bio-portrait{
+    display:block;
+    width:100%;
+    height:100%;
+    object-fit:cover;
+    filter:grayscale(0.15) contrast(1.05);
+  }
+
+  .bio-summary-text{
+    display:flex;
+    flex-direction:column;
+    gap:5px;
+    flex:1;
+    min-width:0;
+  }
+  .bio-name{
+    font-family:'Tektur', sans-serif;
+    font-weight:700;
+    font-size:clamp(1.05rem, 2.4vw, 1.3rem);
+    color:var(--ink);
+    display:flex;
+    align-items:center;
+    gap:10px;
+    flex-wrap:wrap;
+  }
+  .role-tag{
+    font-family:'Space Mono', monospace;
+    font-weight:700;
+    font-size:0.66rem;
+    letter-spacing:0.1em;
+    text-transform:uppercase;
+    color:#05170a;
+    background:var(--accent);
+    padding:4px 10px;
+    border-radius:2px;
+    white-space:nowrap;
+  }
+  .bio-hint{
+    font-family:'Space Mono', monospace;
+    font-size:0.72rem;
+    letter-spacing:0.03em;
+    color:var(--ink-faint);
+  }
+  .bio-hint-close{display:none;}
+  .bio-card[open] .bio-hint-open{display:none;}
+  .bio-card[open] .bio-hint-close{display:inline;}
+
+  .bio-indicator{
+    width:34px;
+    height:34px;
+    border-radius:50%;
+    border:1px solid var(--line-bright);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    color:var(--accent);
+    flex-shrink:0;
+  }
+  .bio-indicator svg{width:14px; height:14px; fill:currentColor; transition:transform 0.2s ease;}
+  .bio-card[open] .bio-indicator{background:var(--accent); border-color:var(--accent); color:#05170a;}
+  .bio-card[open] .bio-indicator svg{transform:rotate(45deg);}
+
+  .bio-text{
+    font-family:'Manrope', system-ui, sans-serif;
+    color:var(--ink-dim);
+    font-size:0.96rem;
+    line-height:1.75;
+    padding:4px 30px 30px 140px;
+  }
+  .bio-text p{
+    margin:0 0 20px;
+  }
+  .bio-text p:first-of-type{
+    color:var(--ink);
+    font-size:1.05rem;
+  }
+  .bio-text p:last-of-type{
+    margin-bottom:0;
+    color:var(--accent-soft);
+  }
+  .bio-text h3{
+    font-family:'Tektur', sans-serif;
+    font-weight:700;
+    font-size:0.86rem;
+    letter-spacing:0.08em;
+    text-transform:uppercase;
+    color:var(--accent-soft);
+    margin:28px 0 12px;
+  }
+  .bio-text h3:first-child{margin-top:0;}
+
+  @media (max-width:720px){
+    .bio-card summary{padding:18px 20px; gap:16px;}
+    .bio-portrait-wrap{width:64px; height:64px;}
+    .bio-text{padding:4px 20px 26px;}
+  }
+
+
+  /* ---------- FOOTER ---------- */
+  footer{
+    padding:40px 0 56px;
+  }
+  footer .wrap{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:16px;
+    flex-wrap:wrap;
+    border-top:1px solid var(--line);
+    padding-top:24px;
+  }
+  footer p{
+    font-family:'Space Mono', monospace;
+    font-size:0.72rem;
+    color:var(--ink-faint);
+    margin:0;
+    letter-spacing:0.03em;
+  }
+
+  .cow-band{
+    padding:0 0 56px;
+    text-align:center;
+  }
+  .cow-btn{
+    font-size:0.9rem;
+    padding:15px 28px;
+  }
+  .cow-btn .cow-emoji{
+    font-size:1.15rem;
+    line-height:1;
+  }
+
+  @media (max-width:720px){
+    .hero{grid-template-columns:1fr; text-align:left; padding-top:56px;}
+    .emblem-frame{max-width:220px;}
+    .crew-card{grid-template-columns:48px 1fr; text-align:left;}
+    .crew-card > .btn{width:fit-content; grid-column:1/-1;}
+    .crew-actions{grid-column:1/-1; flex-direction:row; flex-wrap:wrap; align-items:flex-start; margin-top:4px;}
+    .crew-actions .btn{width:fit-content;}
+    .crew-avatar{width:48px; height:48px;}
+    .cta-inner{flex-direction:column; align-items:flex-start;}
+    .stats-grid{grid-template-columns:repeat(2, 1fr);}
+  }
+
+  @media (max-width:420px){
+    .stats-grid{grid-template-columns:1fr;}
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    html{scroll-behavior:auto;}
+    .hero-copy h1{animation:none; opacity:1;}
+    .emblem-frame::after{animation:none;}
+    .btn{transition:none;}
+    .live-dot{animation:none;}
+    .snake{display:none;}
+    .music-btn{transition:none;}
+  }
+</style>
+
+<main>
+  <svg class="snake snake-a" viewBox="0 0 210 60" aria-hidden="true" focusable="false">
+    <path class="snake-body" d="M6,32 C28,10 46,54 70,32 C94,10 112,54 136,32 C150,22 158,26 168,30" />
+    <path class="snake-head" d="M168,30 L186,22 L188,38 Z" />
+    <line class="snake-tongue" x1="188" y1="29" x2="200" y2="24" />
+    <line class="snake-tongue" x1="188" y1="31" x2="200" y2="36" />
+  </svg>
+  <svg class="snake snake-b" viewBox="0 0 210 60" aria-hidden="true" focusable="false">
+    <path class="snake-body" d="M6,32 C28,10 46,54 70,32 C94,10 112,54 136,32 C150,22 158,26 168,30" />
+    <path class="snake-head" d="M168,30 L186,22 L188,38 Z" />
+    <line class="snake-tongue" x1="188" y1="29" x2="200" y2="24" />
+    <line class="snake-tongue" x1="188" y1="31" x2="200" y2="36" />
+  </svg>
+
+  <div class="tipper-widget" id="tipper-widget">
+    <div class="tipper-widget-head">
+      <span class="tipper-widget-icon" aria-hidden="true">&#127942;</span>
+      <span class="tipper-widget-title">Top Tippers</span>
+    </div>
+    <ol class="tipper-widget-list">
+      <li><span class="tw-rank tw-rank-1">1</span><span class="tw-name">Cryssi</span></li>
+      <li><span class="tw-rank">2</span><span class="tw-name">Brian</span></li>
+      <li><span class="tw-rank">3</span><span class="tw-name">luci</span></li>
+      <li><span class="tw-rank">4</span><span class="tw-name">thevanishingpointmain</span></li>
+      <li><span class="tw-rank">5</span><span class="tw-name">midny</span></li>
+    </ol>
+  </div>
+
+  <div class="wrap hero">
+    <div class="emblem-frame">
+      <img src="assets/img/img-24859e2f15.webp" alt="The Tony Verse Directory emblem: three faces beneath a coiled cobra and DNA helix, rendered in toxic green" width="760" height="760" />
+    </div>
+    <div class="hero-copy">
+      <p class="eyebrow">The Top Content Crew</p>
+      <h1>THE TONY<br><span>VERSE</span></h1>
+      <p class="tagline">FOUR HOSTS. ONE MUTATION. Follow the crew across every channel and catch the Discord where it all actually gets decided.</p>
+      <div class="hero-actions">
+        <a class="btn btn-solid" href="https://kick.com/cobratvp" target="_blank" rel="noopener">Watch Live on Kick</a>
+        <a class="btn" href="https://discord.gg/yxB9etWSz" target="_blank" rel="noopener">Join the Discord</a>
+        <a class="btn" href="#crew">See the Crew</a>
+        <a class="btn" href="#biography">Biography's</a>
+        <a class="btn" href="https://claude.ai/code/artifact/380e959c-a833-4fb8-b2ba-183a7aa1e83a" target="_blank" rel="noopener noreferrer">Tony</a>
+        <a class="btn" href="https://www.tiktok.com/@kielunarez" target="_blank" rel="noopener noreferrer">KIELUNA</a>
+      </div>
+    </div>
+  </div>
+
+  <section id="hr">
+    <div class="wrap">
+      <div class="section-head">
+        <div>
+          <p class="eyebrow">HR</p>
+          <h2>HR Department</h2>
+        </div>
+      </div>
+      <a class="tapes-banner" href="https://claude.ai/code/artifact/d218ac56-cded-4eef-b97b-927ae4751104" target="_blank" rel="noopener noreferrer">
+        <span class="tapes-emoji" aria-hidden="true">🗂️</span>
+        <span class="tapes-title">HR</span>
+        <span class="tapes-sub">Tap in &mdash; file a report or reach the crew's HR.</span>
+      </a>
+    </div>
+  </section>
+
+  <section id="streams">
+    <div class="wrap">
+      <details class="clip-section">
+        <summary>
+          <div>
+            <p class="eyebrow">Catch Up</p>
+            <h2>Most Recent Streams</h2>
+          </div>
+          <div class="clip-summary-right">
+            <span class="count">04 clips</span>
+            <span class="bio-indicator" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M11 5h2v6h6v2h-6v6h-2v-6H5v-2h6z"/></svg></span>
+          </div>
+        </summary>
+        <div class="streams-grid">
+        <a class="stream-card" href="https://www.youtube.com/watch?v=MBzK4HRGFzs" target="_blank" rel="noopener">
+          <span class="stream-title-wrap" data-video-id="MBzK4HRGFzs">
+            <span class="stream-title">Lucifina &amp; KieLuna <span class="platform-tag">Monarchs After Dark</span></span>
+            <span class="stream-view-badge is-visible" data-field="views"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4.5C7 4.5 2.7 7.9 1 12c1.7 4.1 6 7.5 11 7.5s9.3-3.4 11-7.5c-1.7-4.1-6-7.5-11-7.5zm0 12.5a5 5 0 110-10 5 5 0 010 10z"/></svg><span class="stream-view-count">285 views</span></span>
+          </span>
+        </a>
+        <a class="stream-card" href="https://www.youtube.com/watch?v=5pBMBbuL7es" target="_blank" rel="noopener">
+          <span class="stream-title-wrap" data-video-id="5pBMBbuL7es">
+            <span class="stream-title">THE REAL RIGGATONY</span>
+            <span class="stream-view-badge is-visible" data-field="views"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4.5C7 4.5 2.7 7.9 1 12c1.7 4.1 6 7.5 11 7.5s9.3-3.4 11-7.5c-1.7-4.1-6-7.5-11-7.5zm0 12.5a5 5 0 110-10 5 5 0 010 10z"/></svg><span class="stream-view-count">125 views</span></span>
+          </span>
+        </a>
+        <a class="stream-card" href="https://www.youtube.com/watch?v=TPH-JkZI0hE" target="_blank" rel="noopener">
+          <span class="stream-title-wrap" data-video-id="TPH-JkZI0hE">
+            <span class="stream-title">3POINT</span>
+            <span class="stream-view-badge is-visible" data-field="views"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4.5C7 4.5 2.7 7.9 1 12c1.7 4.1 6 7.5 11 7.5s9.3-3.4 11-7.5c-1.7-4.1-6-7.5-11-7.5zm0 12.5a5 5 0 110-10 5 5 0 010 10z"/></svg><span class="stream-view-count">96 views</span></span>
+          </span>
+        </a>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <section id="apple-clipz">
+    <div class="wrap">
+      <details class="clip-section">
+        <summary>
+          <div>
+            <p class="eyebrow">Clip Channel</p>
+            <h2>&#127822; JOHNNY APPLE CLIPZ &#127822;</h2>
+          </div>
+          <div class="clip-summary-right">
+            <span class="count">04 clips</span>
+            <span class="bio-indicator" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M11 5h2v6h6v2h-6v6h-2v-6H5v-2h6z"/></svg></span>
+          </div>
+        </summary>
+        <div class="streams-grid">
+        <a class="stream-card" href="https://www.youtube.com/shorts/Au0y9cC_a_4" target="_blank" rel="noopener">
+          <span class="stream-title-wrap" data-video-id="Au0y9cC_a_4">
+            <span class="stream-title">Look At You Sea Pickle Lookin Ahh <span class="platform-tag">#funny #beef #drama</span></span>
+            <span class="stream-view-badge is-visible" data-field="views"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4.5C7 4.5 2.7 7.9 1 12c1.7 4.1 6 7.5 11 7.5s9.3-3.4 11-7.5c-1.7-4.1-6-7.5-11-7.5zm0 12.5a5 5 0 110-10 5 5 0 010 10z"/></svg><span class="stream-view-count">14 views</span></span>
+          </span>
+        </a>
+        <a class="stream-card" href="https://www.youtube.com/shorts/D1APmESIPIY" target="_blank" rel="noopener">
+          <span class="stream-title-wrap" data-video-id="D1APmESIPIY">
+            <span class="stream-title">Is He Whacky Or Just Stupid?!? <span class="platform-tag">#lcu #funny #drama</span></span>
+            <span class="stream-view-badge is-visible" data-field="views"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4.5C7 4.5 2.7 7.9 1 12c1.7 4.1 6 7.5 11 7.5s9.3-3.4 11-7.5c-1.7-4.1-6-7.5-11-7.5zm0 12.5a5 5 0 110-10 5 5 0 010 10z"/></svg><span class="stream-view-count">9 views</span></span>
+          </span>
+        </a>
+        <a class="stream-card" href="https://www.youtube.com/shorts/LI4OVO9rc-0" target="_blank" rel="noopener">
+          <span class="stream-title-wrap" data-video-id="LI4OVO9rc-0">
+            <span class="stream-title">Nazz And Lucifina Argue Like Two Little Monkeys <span class="platform-tag">#funny #drama #toxic #lcu</span></span>
+            <span class="stream-view-badge is-visible" data-field="views"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4.5C7 4.5 2.7 7.9 1 12c1.7 4.1 6 7.5 11 7.5s9.3-3.4 11-7.5c-1.7-4.1-6-7.5-11-7.5zm0 12.5a5 5 0 110-10 5 5 0 010 10z"/></svg><span class="stream-view-count">9 views</span></span>
+          </span>
+        </a>
+        <a class="stream-card" href="https://www.youtube.com/shorts/HQVaaWoPDwA" target="_blank" rel="noopener">
+          <span class="stream-title-wrap" data-video-id="HQVaaWoPDwA">
+            <span class="stream-title">Nazz Comes Out Of The Closet <span class="platform-tag">#funny #drama #toxic #lcu</span></span>
+            <span class="stream-view-badge is-visible" data-field="views"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4.5C7 4.5 2.7 7.9 1 12c1.7 4.1 6 7.5 11 7.5s9.3-3.4 11-7.5c-1.7-4.1-6-7.5-11-7.5zm0 12.5a5 5 0 110-10 5 5 0 010 10z"/></svg><span class="stream-view-count">11 views</span></span>
+          </span>
+        </a>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <section id="tony-schitzo">
+    <div class="wrap">
+      <details class="clip-section">
+        <summary>
+          <div>
+            <p class="eyebrow">Certified Chaos</p>
+            <h2>The Tony Schitzo Section</h2>
+          </div>
+          <div class="clip-summary-right">
+            <span class="count">04 clips</span>
+            <span class="bio-indicator" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M11 5h2v6h6v2h-6v6h-2v-6H5v-2h6z"/></svg></span>
+          </div>
+        </summary>
+        <div class="streams-grid">
+        <a class="stream-card" href="https://www.youtube.com/watch?v=zdGObd5n3Cs&amp;t=889s" target="_blank" rel="noopener">
+          <span class="stream-title-wrap" data-video-id="zdGObd5n3Cs">
+            <span class="stream-title">Rantz Thinks He Runs This!</span>
+            <span class="stream-view-badge is-visible" data-field="views"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4.5C7 4.5 2.7 7.9 1 12c1.7 4.1 6 7.5 11 7.5s9.3-3.4 11-7.5c-1.7-4.1-6-7.5-11-7.5zm0 12.5a5 5 0 110-10 5 5 0 010 10z"/></svg><span class="stream-view-count">153 views</span></span>
+          </span>
+        </a>
+        <a class="stream-card" href="https://www.youtube.com/watch?v=aQR4onkP2So&amp;t=1998s" target="_blank" rel="noopener">
+          <span class="stream-title-wrap" data-video-id="aQR4onkP2So">
+            <span class="stream-title">100% PURE! NO ISSUE'S!</span>
+            <span class="stream-view-badge is-visible" data-field="views"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4.5C7 4.5 2.7 7.9 1 12c1.7 4.1 6 7.5 11 7.5s9.3-3.4 11-7.5c-1.7-4.1-6-7.5-11-7.5zm0 12.5a5 5 0 110-10 5 5 0 010 10z"/></svg><span class="stream-view-count">81 views</span></span>
+          </span>
+        </a>
+        <a class="stream-card" href="https://www.youtube.com/watch?v=hGDJ0Ozg6NY&amp;t=3665s" target="_blank" rel="noopener">
+          <span class="stream-title-wrap" data-video-id="hGDJ0Ozg6NY">
+            <span class="stream-title">Riggatony In Paris! TONY WINS!</span>
+            <span class="stream-view-badge is-visible" data-field="views"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4.5C7 4.5 2.7 7.9 1 12c1.7 4.1 6 7.5 11 7.5s9.3-3.4 11-7.5c-1.7-4.1-6-7.5-11-7.5zm0 12.5a5 5 0 110-10 5 5 0 010 10z"/></svg><span class="stream-view-count">59 views</span></span>
+          </span>
+        </a>
+        <a class="stream-card" href="https://www.youtube.com/watch?v=b2uUuFCDdrM&amp;t=1451s" target="_blank" rel="noopener">
+          <span class="stream-title-wrap" data-video-id="b2uUuFCDdrM">
+            <span class="stream-title">CAN WE SAVE HIM? FEAT: TVP</span>
+            <span class="stream-view-badge is-visible" data-field="views"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4.5C7 4.5 2.7 7.9 1 12c1.7 4.1 6 7.5 11 7.5s9.3-3.4 11-7.5c-1.7-4.1-6-7.5-11-7.5zm0 12.5a5 5 0 110-10 5 5 0 010 10z"/></svg><span class="stream-view-count">54 views</span></span>
+          </span>
+        </a>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <section id="stats">
+    <div class="wrap">
+      <div class="section-head">
+        <div>
+          <p class="eyebrow">By The Numbers</p>
+          <h2>Channel Stats</h2>
+        </div>
+        <div class="stats-head-row">
+          <span class="live-dot" aria-hidden="true"></span>
+          <span class="count" id="stats-updated">Loading&hellip;</span>
+          <button class="refresh-btn" id="stats-refresh" type="button">Refresh</button>
+        </div>
+      </div>
+
+      <div class="stats-grid">
+        <div class="stat-tile" data-handle="@TheRealRiggaTony" data-channel-id="UCuU-2uCW8B3tgk36yTPFsHg" data-last-video-id="jeslWGXmfaU" data-history-key="tony" data-live="1" data-poll-ms="3600000" data-keys="AIzaSyC-bR5OiOA7DRBfejn_JTe1-rA-8b0xa5o">
+          <div class="stat-head">
+            <img class="stat-avatar" src="assets/img/img-3146b4ca9f.webp" alt="" width="36" height="36">
+            <span class="stat-name">Tony</span>
+            <span class="live-dot" aria-hidden="true"></span>
+          </div>
+          <div>
+            <span class="stat-value" data-field="subs">128</span>
+            <span class="stat-label">Subscribers</span>
+          </div>
+          <span class="stat-views" data-field="views">4.8K views</span>
+          <span class="stat-trend" data-field="trend"></span>
+          <a class="stat-live-link is-visible" data-field="live-link" href="https://www.youtube.com/watch?v=5pBMBbuL7es" target="_blank" rel="noopener">
+            <span class="stat-live-badge" data-field="live-badge">Most Recent</span>
+            <span class="stat-live-title" data-field="live-title">Grand Theft Auto 6 Reveal!!!</span>
+            <span class="stat-live-viewers" data-field="live-viewers"></span>
+          </a>
+        </div>
+        <div class="stat-tile" data-handle="@MonarchsAfterDark" data-channel-id="UCwbsL_MPlH3SVrNXp9S47TA" data-last-video-id="MBzK4HRGFzs" data-history-key="monarchs" data-live="1" data-poll-ms="3600000" data-keys="AIzaSyC-bR5OiOA7DRBfejn_JTe1-rA-8b0xa5o">
+          <div class="stat-head">
+            <img class="stat-avatar" src="assets/img/img-20f11a1f4f.webp" alt="" width="36" height="36">
+            <span class="stat-name">Monarchs After Dark</span>
+            <span class="live-dot" aria-hidden="true"></span>
+          </div>
+          <div>
+            <span class="stat-value" data-field="subs">204</span>
+            <span class="stat-label">Subscribers</span>
+          </div>
+          <span class="stat-views" data-field="views">7.7K views</span>
+          <span class="stat-trend" data-field="trend"></span>
+          <a class="stat-live-link is-visible" data-field="live-link" href="https://www.youtube.com/watch?v=MBzK4HRGFzs" target="_blank" rel="noopener">
+            <span class="stat-live-badge" data-field="live-badge">Most Recent</span>
+            <span class="stat-live-title" data-field="live-title">(SPECIAL GUEST) Booster Gold's First Fem Friday</span>
+            <span class="stat-live-viewers" data-field="live-viewers"></span>
+          </a>
+        </div>
+        <div class="stat-tile" data-handle="@The3PointTriangulation" data-channel-id="UCodgKaUY-Occ6dTfot1vkoQ" data-last-video-id="TPH-JkZI0hE" data-history-key="nazz" data-live="1" data-poll-ms="3600000" data-keys="AIzaSyC-bR5OiOA7DRBfejn_JTe1-rA-8b0xa5o">
+          <div class="stat-head">
+            <img class="stat-avatar" src="assets/img/img-07ea01b3ec.webp" alt="" width="36" height="36">
+            <span class="stat-name">Nazz</span>
+            <span class="live-dot" aria-hidden="true"></span>
+          </div>
+          <div>
+            <span class="stat-value" data-field="subs">108</span>
+            <span class="stat-label">Subscribers</span>
+          </div>
+          <span class="stat-views" data-field="views">4.5K views</span>
+          <span class="stat-trend" data-field="trend"></span>
+          <a class="stat-live-link is-visible" data-field="live-link" href="https://www.youtube.com/watch?v=TPH-JkZI0hE" target="_blank" rel="noopener">
+            <span class="stat-live-badge" data-field="live-badge">Most Recent</span>
+            <span class="stat-live-title" data-field="live-title">Nazz Red Dead With My Bald Head!</span>
+            <span class="stat-live-viewers" data-field="live-viewers"></span>
+          </a>
+        </div>
+        <div class="stat-tile" data-handle="@revvedupreactons" data-channel-id="UC_IzpRnuu75gsChW0VXR5QA" data-last-video-id="rjUbZdk41wg" data-history-key="rantz" data-live="1" data-poll-ms="3600000" data-keys="AIzaSyC-bR5OiOA7DRBfejn_JTe1-rA-8b0xa5o">
+          <div class="stat-head">
+            <img class="stat-avatar" src="assets/img/img-ab9a30a52f.webp" alt="" width="36" height="36">
+            <span class="stat-name">Rantz</span>
+            <span class="live-dot" aria-hidden="true"></span>
+          </div>
+          <div>
+            <span class="stat-value" data-field="subs">23</span>
+            <span class="stat-label">Subscribers</span>
+          </div>
+          <span class="stat-views" data-field="views">0 views</span>
+          <span class="stat-trend" data-field="trend"></span>
+          <a class="stat-live-link is-visible is-upcoming" data-field="live-link" href="https://www.youtube.com/watch?v=rjUbZdk41wg" target="_blank" rel="noopener">
+            <span class="stat-live-badge" data-field="live-badge">Scheduled</span>
+            <span class="stat-live-title" data-field="live-title">Revved Up Reactons Live Stream</span>
+            <span class="stat-live-viewers" data-field="live-viewers"></span>
+          </a>
+        </div>
+      </div>
+      <p class="stats-note">Live from the YouTube Data API &mdash; every tile refreshes itself every hour and tracks growth day to day. The link under each tile follows suit: it points at a live broadcast the moment one starts, a scheduled stream once one's on the calendar, or their latest upload otherwise &mdash; and a new video or stream pulls fresh subscriber/view numbers immediately instead of waiting for the next cycle. If a call fails, the last known numbers stay put.</p>
+      <script type="application/json" id="stats-history">[{"date":"2026-08-26","tony":{"subs":107,"views":3522},"monarchs":{"subs":73,"views":1289},"nazz":{"subs":95,"views":1583}},{"date":"2026-08-27","tony":{"subs":107,"views":3923},"monarchs":{"subs":76,"views":1523},"nazz":{"subs":95,"views":1718},"rantz":{"subs":23,"views":277}},{"date":"2026-08-29","tony":{"subs":108,"views":4103},"monarchs":{"subs":89,"views":1709},"nazz":{"subs":96,"views":1796},"rantz":{"subs":23,"views":274}},{"date":"2026-08-30","tony":{"subs":113,"views":4136},"monarchs":{"subs":93,"views":2175},"nazz":{"subs":98,"views":1812},"rantz":{"subs":24,"views":277}},{"date":"2026-09-02","tony":{"subs":117,"views":4733},"monarchs":{"subs":131,"views":2651},"nazz":{"subs":99,"views":3784},"rantz":{"subs":24,"views":274}},{"date":"2026-09-04","tony":{"subs":121,"views":4763},"monarchs":{"subs":134,"views":2804},"nazz":{"subs":101,"views":3844},"rantz":{"subs":23,"views":274}},{"date":"2026-09-06","tony":{"subs":121,"views":4768},"monarchs":{"subs":142,"views":2880},"nazz":{"subs":103,"views":3873},"rantz":{"subs":23,"views":274}},{"date":"2026-09-09","tony":{"subs":124,"views":4785},"monarchs":{"subs":157,"views":2933},"nazz":{"subs":105,"views":3874},"rantz":{"subs":23,"views":157}},{"date":"2026-09-13","tony":{"subs":124,"views":4810},"monarchs":{"subs":168,"views":5437},"nazz":{"subs":105,"views":4262},"rantz":{"subs":23,"views":0}},{"date":"2026-09-19","tony":{"subs":128,"views":4830},"monarchs":{"subs":204,"views":7657},"nazz":{"subs":108,"views":4521},"rantz":{"subs":23,"views":0}}]</script>
+    </div>
+  </section>
+
+  <section id="schedule">
+    <div class="wrap">
+      <div class="section-head">
+        <div>
+          <p class="eyebrow">Weekly</p>
+          <h2>Schedule</h2>
+        </div>
+        <span class="count">Eastern Time</span>
+      </div>
+
+      <div class="schedule-wrap">
+        <table class="schedule">
+          <thead>
+            <tr>
+              <th scope="col">Host</th>
+              <th scope="col" data-day="1">Mon</th>
+              <th scope="col" data-day="2">Tue</th>
+              <th scope="col" data-day="3">Wed</th>
+              <th scope="col" data-day="4">Thu</th>
+              <th scope="col" data-day="5">Fri</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr data-history-key="tony">
+              <th scope="row">
+                <span class="schedule-host">
+                  <img class="schedule-avatar" src="assets/img/img-3146b4ca9f.webp" alt="" width="32" height="32">
+                  Tony
+                  <span class="schedule-live-badge" data-field="schedule-live">Live</span>
+                </span>
+              </th>
+              <td data-day="1"><span class="slot-empty">&mdash;</span></td>
+              <td data-day="2"><span class="slot">10 AM&ndash;12 PM</span></td>
+              <td data-day="3"><span class="slot-empty">&mdash;</span></td>
+              <td data-day="4"><span class="slot">10 AM&ndash;12 PM</span></td>
+              <td data-day="5"><span class="slot-empty">&mdash;</span></td>
+            </tr>
+            <tr data-history-key="rantz">
+              <th scope="row">
+                <span class="schedule-host">
+                  <img class="schedule-avatar" src="assets/img/img-ab9a30a52f.webp" alt="" width="32" height="32">
+                  Rantz
+                  <span class="schedule-live-badge" data-field="schedule-live">Live</span>
+                </span>
+              </th>
+              <td data-day="1"><span class="slot">12&ndash;2 PM</span></td>
+              <td data-day="2"><span class="slot-empty">&mdash;</span></td>
+              <td data-day="3"><span class="slot">12&ndash;2 PM</span></td>
+              <td data-day="4"><span class="slot-empty">&mdash;</span></td>
+              <td data-day="5"><span class="slot">12&ndash;2 PM</span></td>
+            </tr>
+            <tr data-history-key="nazz">
+              <th scope="row">
+                <span class="schedule-host">
+                  <img class="schedule-avatar" src="assets/img/img-07ea01b3ec.webp" alt="" width="32" height="32">
+                  Nazz
+                  <span class="schedule-live-badge" data-field="schedule-live">Live</span>
+                </span>
+              </th>
+              <td data-day="1"><span class="slot">2&ndash;5 PM</span></td>
+              <td data-day="2"><span class="slot-empty">&mdash;</span></td>
+              <td data-day="3"><span class="slot-empty">&mdash;</span></td>
+              <td data-day="4"><span class="slot-empty">&mdash;</span></td>
+              <td data-day="5"><span class="slot">2&ndash;5 PM</span></td>
+            </tr>
+            <tr data-history-key="monarchs">
+              <th scope="row">
+                <span class="schedule-host">
+                  <img class="schedule-avatar" src="assets/img/img-20f11a1f4f.webp" alt="" width="32" height="32">
+                  Kie
+                  <span class="schedule-live-badge" data-field="schedule-live">Live</span>
+                </span>
+              </th>
+              <td data-day="1"><span class="slot">4&ndash;6 PM</span></td>
+              <td data-day="2"><span class="slot">4&ndash;6 PM</span></td>
+              <td data-day="3"><span class="slot-empty">&mdash;</span></td>
+              <td data-day="4"><span class="slot">4&ndash;6 PM</span></td>
+              <td data-day="5"><span class="slot">3&ndash;5 PM</span></td>
+            </tr>
+            </tbody>
+        </table>
+      </div>
+      <p class="schedule-note"><span class="live-dot" aria-hidden="true"></span>All times Eastern (ET) &middot; today's slots are highlighted &middot; subject to change.</p>
+    </div>
+  </section>
+
+  <section id="crew">
+    <div class="wrap">
+      <div class="section-head">
+        <div>
+          <p class="eyebrow">Watch</p>
+          <h2>The Crew</h2>
+        </div>
+        <span class="count">05 channels</span>
+      </div>
+
+      <div class="crew">
+        <div class="crew-card">
+          <img class="crew-avatar" src="assets/img/img-3146b4ca9f.webp" alt="Tony" width="64" height="64" />
+          <div>
+            <span class="crew-name">Tony</span>
+            <span class="crew-handle">youtube.com/@TheRealRiggaTony</span>
+            <span class="crew-discord">Discord: johnny_provalone <button class="copy-btn" type="button" data-copy="johnny_provalone">Copy</button></span>
+          </div>
+          <div class="crew-actions">
+            <a class="btn" href="https://www.youtube.com/@TheRealRiggaTony" target="_blank" rel="noopener">Watch <span class="platform-tag">YouTube</span></a>
+            <a class="btn" href="https://www.instagram.com/nonsense_rick/" target="_blank" rel="noopener">Follow <span class="platform-tag">Instagram</span></a>
+          </div>
+        </div>
+        <div class="crew-card">
+          <img class="crew-avatar" src="assets/img/img-20f11a1f4f.webp" alt="Monarchs After Dark channel art" width="64" height="64" />
+          <div>
+            <span class="crew-name">Lucifina &amp; KieLuna</span>
+            <span class="crew-handle">youtube.com/@MonarchsAfterDark</span>
+            <span class="crew-discord">Discord: luci_tina <button class="copy-btn" type="button" data-copy="luci_tina">Copy</button></span>
+          </div>
+          <div class="crew-actions">
+            <a class="btn" href="https://www.youtube.com/@MonarchsAfterDark" target="_blank" rel="noopener">Watch <span class="platform-tag">YouTube</span></a>
+            <a class="btn" href="https://www.tiktok.com/@kielunarez" target="_blank" rel="noopener">Follow <span class="platform-tag">TikTok</span></a>
+          </div>
+        </div>
+        <div class="crew-card">
+          <img class="crew-avatar" src="assets/img/img-07ea01b3ec.webp" alt="Nazz" width="64" height="64" />
+          <div>
+            <span class="crew-name">Nazz</span>
+            <span class="crew-handle">youtube.com/@The3PointTriangulation</span>
+            <span class="crew-discord">Discord: nazz6410 <button class="copy-btn" type="button" data-copy="nazz6410">Copy</button></span>
+          </div>
+          <div class="crew-actions">
+            <a class="btn" href="https://www.youtube.com/@The3PointTriangulation" target="_blank" rel="noopener">Watch <span class="platform-tag">YouTube</span></a>
+            <a class="btn" href="https://www.instagram.com/nazzidini/" target="_blank" rel="noopener">Follow <span class="platform-tag">Instagram</span></a>
+          </div>
+        </div>
+        <div class="crew-card">
+          <img class="crew-avatar" src="assets/img/img-ab9a30a52f.webp" alt="Rantz" width="64" height="64" />
+          <div>
+            <span class="crew-name">Rantz</span>
+            <span class="crew-handle">youtube.com/@revvedupreactons</span>
+            <span class="crew-discord">Discord: gamerjames8366 <button class="copy-btn" type="button" data-copy="gamerjames8366">Copy</button></span>
+          </div>
+          <a class="btn" href="https://www.youtube.com/@revvedupreactons" target="_blank" rel="noopener">Watch <span class="platform-tag">YouTube</span></a>
+        </div>
+      </div>
+      <p class="schedule-note">Copy a username, then use Discord's Add Friend search to send the request.</p>
+    </div>
+  </section>
+
+  <section id="reoccurring-guests">
+    <div class="wrap">
+      <div class="section-head">
+        <div>
+          <p class="eyebrow">Watch</p>
+          <h2>Reoccurring Guests</h2>
+        </div>
+        <span class="count">01 guest</span>
+      </div>
+
+      <div class="crew">
+        <div class="crew-card">
+          <img class="crew-avatar" src="assets/img/img-f938ec133a.webp" alt="Thomas" width="64" height="64" />
+          <div>
+            <span class="crew-name">Thomas</span>
+            <span class="crew-discord">Discord: thomaslindsey <button class="copy-btn" type="button" data-copy="thomaslindsey">Copy</button></span>
+          </div>
+        </div>
+      </div>
+      <p class="schedule-note">Copy a username, then use Discord's Add Friend search to send the request.</p>
+    </div>
+  </section>
+
+  <section id="nazz-tapes">
+    <div class="wrap">
+      <div class="tapes-grid">
+        <a class="tapes-banner" href="https://claude.ai/code/artifact/6695e29d-e9c2-437f-b712-83b4eea040ab" target="_blank" rel="noopener noreferrer">
+          <span class="tapes-emoji" aria-hidden="true">🎧</span>
+          <span class="tapes-title">THE NAZZ TAPES</span>
+          <span class="tapes-sub">Tap in &mdash; the mixtape drops here.</span>
+        </a>
+        <a class="tapes-banner" href="https://claude.ai/code/artifact/da1685e9-2954-4073-93f7-51a11579ac60" target="_blank" rel="noopener noreferrer">
+          <span class="tapes-emoji" aria-hidden="true">🎙️</span>
+          <span class="tapes-title">THE TONY TAPES</span>
+          <span class="tapes-sub">Tap in &mdash; the mixtape drops here.</span>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <section id="host-tools">
+    <div class="wrap">
+      <div class="section-head">
+        <div>
+          <p class="eyebrow">Host Tools</p>
+          <h2>Creator Toolkit</h2>
+        </div>
+      </div>
+      <div class="tapes-grid">
+        <a class="tapes-banner" href="https://claude.ai/code/artifact/526c3bc0-b8d6-4e09-be64-8482e0ef9cf3" target="_blank" rel="noopener noreferrer">
+          <span class="tapes-emoji" aria-hidden="true">🛠️</span>
+          <span class="tapes-title">TONY MULTIVERSE</span>
+          <span class="tapes-sub">Tap in &mdash; the host toolkit lives here.</span>
+        </a>
+        <a class="tapes-banner" href="https://claude.ai/code/artifact/95190904-227a-45d7-a0ea-ab5e8d8ac841" target="_blank" rel="noopener noreferrer">
+          <span class="tapes-emoji" aria-hidden="true">📅</span>
+          <span class="tapes-title">CALENDAR</span>
+          <span class="tapes-sub">Tap in &mdash; the host toolkit lives here.</span>
+        </a>
+        <a class="tapes-banner" href="https://claude.ai/code/artifact/03f0128e-9b4c-4413-8f27-85c485e560e4" target="_blank" rel="noopener noreferrer">
+          <span class="tapes-emoji" aria-hidden="true">🤖</span>
+          <span class="tapes-title">HOW TO USE CHAT GPT</span>
+          <span class="tapes-sub">Tap in &mdash; the host toolkit lives here.</span>
+        </a>
+        <a class="tapes-banner" href="https://claude.ai/code/artifact/5e20732e-923a-4104-8110-e4d822d8a61b" target="_blank" rel="noopener noreferrer">
+          <span class="tapes-emoji" aria-hidden="true">🎵</span>
+          <span class="tapes-title">HOW TO USE TONY USES SUNO</span>
+          <span class="tapes-sub">Tap in &mdash; the host toolkit lives here.</span>
+        </a>
+        <a class="tapes-banner" href="https://claude.ai/code/artifact/33296906-4ce5-40c6-9216-fa29981fb734" target="_blank" rel="noopener noreferrer">
+          <span class="tapes-emoji" aria-hidden="true">🖼️</span>
+          <span class="tapes-title">HOW TONY MAKE'S THUMBNAIL'S</span>
+          <span class="tapes-sub">Tap in &mdash; the host toolkit lives here.</span>
+        </a>
+        <a class="tapes-banner" href="https://claude.ai/code/artifact/c32cf24f-2855-4bbd-87d8-0d4171ef4dac" target="_blank" rel="noopener noreferrer">
+          <span class="tapes-emoji" aria-hidden="true">📈</span>
+          <span class="tapes-title">CHANNEL ALGORITHM</span>
+          <span class="tapes-sub">Tap in &mdash; the host toolkit lives here.</span>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <section id="movie-night">
+    <div class="wrap">
+      <div class="section-head">
+        <div>
+          <p class="eyebrow">Movie Night</p>
+          <h2>Upcoming Movie</h2>
+        </div>
+      </div>
+      <div class="movie-banner">
+        <p class="movie-eyebrow">Now Loading</p>
+        <p class="movie-title">THE WHOLE MARVEL TIMELINE</p>
+        <p class="movie-sub">Every film, start to finish &mdash; pull up a seat in the Discord watch party.</p>
+        <a class="movie-link" href="https://claude.ai/code/artifact/95782913-7114-4cc8-bcec-a3a9dfb6719e" target="_blank" rel="noopener noreferrer" aria-label="Open the movie night site">
+          <span aria-hidden="true">🎬</span>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <section id="marvel">
+    <div class="wrap">
+      <div class="section-head">
+        <div>
+          <p class="eyebrow">Marvel</p>
+          <h2>Spider-Man Corner</h2>
+        </div>
+      </div>
+      <div class="marvel-grid">
+        <a class="marvel-banner" href="https://claude.ai/code/artifact/73cb89c0-9a63-416c-a4ea-af3fcb1e80ef" target="_blank" rel="noopener noreferrer">
+          <span class="marvel-emoji" aria-hidden="true">🕷️</span>
+          <span class="marvel-title">SPIDER-MAN</span>
+          <span class="marvel-sub">Tap in &mdash; swing into the web-slinger hub.</span>
+        </a>
+        <a class="marvel-banner marvel-banner--doom" href="https://claude.ai/code/artifact/901d2724-d0ed-4725-bbde-f71aa47e669a" target="_blank" rel="noopener noreferrer">
+          <span class="marvel-emoji" aria-hidden="true">🎭</span>
+          <span class="marvel-title">DOOM</span>
+          <span class="marvel-sub">Tap in &mdash; enter Latveria.</span>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <section id="support">
+    <div class="wrap">
+      <div class="section-head">
+        <div>
+          <p class="eyebrow">Support</p>
+          <h2>Send a Tip</h2>
+        </div>
+        <span class="count">04 links</span>
+      </div>
+
+      <div class="crew">
+        <div class="crew-card">
+          <img class="crew-avatar" src="assets/img/img-3146b4ca9f.webp" alt="Tony" width="64" height="64" />
+          <div>
+            <span class="crew-name">Tony</span>
+            <span class="crew-handle">streamlabs.com/cgmr45</span>
+          </div>
+          <a class="btn" href="https://streamlabs.com/cgmr45/tip" target="_blank" rel="noopener">Tip <span class="platform-tag">Streamlabs</span></a>
+        </div>
+        <div class="crew-card">
+          <img class="crew-avatar" src="assets/img/img-07ea01b3ec.webp" alt="Nazz" width="64" height="64" />
+          <div>
+            <span class="crew-name">Nazz</span>
+            <span class="crew-handle">streamlabs.com/nazzx1</span>
+          </div>
+          <a class="btn" href="https://streamlabs.com/nazzx1/tip" target="_blank" rel="noopener">Tip <span class="platform-tag">Streamlabs</span></a>
+        </div>
+      </div>
+      <p class="schedule-note">Every tip goes straight to that host.</p>
+    </div>
+  </section>
+
+  <section id="community">
+    <div class="wrap">
+      <div class="section-head">
+        <div>
+          <p class="eyebrow">Live</p>
+          <h2>The Server</h2>
+        </div>
+      </div>
+      <div class="community-grid">
+        <div class="tracker-card" id="discord-tracker" data-invite="yxB9etWSz">
+          <div class="tracker-head">
+            <img class="tracker-icon" id="tracker-icon" src="" alt="" width="48" height="48" style="display:none;">
+            <div>
+              <span class="tracker-name" id="tracker-name">Beyond the Outside of the Multiverse</span>
+              <span class="tracker-sub">Discord Server</span>
+            </div>
+            <span class="live-dot" aria-hidden="true"></span>
+          </div>
+          <div class="tracker-stats">
+            <div>
+              <span class="tracker-value" id="tracker-members">57</span>
+              <span class="tracker-label">Members</span>
+            </div>
+          </div>
+          <a class="btn btn-solid" href="https://discord.gg/yxB9etWSz" target="_blank" rel="noopener">Join the Discord</a>
+        </div>
+
+        <div class="tree-card" id="tree-watcher" data-base-seconds="213026" data-as-of="2026-08-30T06:48:00Z">
+          <div class="tracker-head">
+            <span class="tree-emoji" aria-hidden="true">&#127795;</span>
+            <div>
+              <span class="tracker-name">Tree Watcher</span>
+              <span class="tracker-sub">Growing since it was planted</span>
+            </div>
+          </div>
+          <p class="tree-timer" id="tree-timer">2d 11h 10m 26s</p>
+          <p class="tree-rank">Currently the <strong>#13,121</strong> tallest tree of all. Well done!</p>
+        </div>
+      </div>
+      <p class="stats-note">Member count is pulled live from the invite &middot; the tree keeps growing in real time.</p>
+    </div>
+  </section>
+
+  <div class="cta-band">
+    <div class="cta-inner">
+      <div>
+        <h2>Get in before the next drop.</h2>
+        <p>Schedules, clips, and crew chatter live in Discord first.</p>
+      </div>
+      <a class="btn btn-solid" href="https://discord.gg/yxB9etWSz" target="_blank" rel="noopener">Join the Discord</a>
+    </div>
+  </div>
+
+  <section id="biography">
+    <div class="wrap">
+      <div class="section-head">
+        <div>
+          <p class="eyebrow">Biography</p>
+        </div>
+      </div>
+
+      <div class="bio-list">
+        <details class="bio-card">
+          <summary>
+            <span class="bio-portrait-wrap">
+              <img class="bio-portrait" src="assets/img/img-2f803cd9c6.webp" alt="Portrait of Tony" width="900" height="900" loading="lazy">
+            </span>
+            <span class="bio-summary-text">
+              <span class="bio-name">Tony <span class="role-tag">Network Manager</span> <span class="platform-tag">Riggatony</span></span>
+              <span class="bio-hint">
+                <span class="bio-hint-open">Click the photo to read the story</span>
+                <span class="bio-hint-close">Click to collapse</span>
+              </span>
+            </span>
+            <span class="bio-indicator" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M11 5h2v6h6v2h-6v6h-2v-6H5v-2h6z"/></svg></span>
+          </summary>
+          <div class="bio-text">
+            <p>Tony is someone who has never been particularly interested in living life quietly. From a young age, he learned that life could change quickly. His experiences growing up gave him an unusual perspective on people, loyalty, independence, and the importance of finding somewhere&mdash;or someone&mdash;you genuinely belong. Those experiences became part of the foundation for the person he would eventually become.</p>
+            <p>As he got older, creativity became one of the biggest ways Tony expressed himself. Music, livestreaming, YouTube, visual design, gaming, and storytelling all became different outlets for the same thing: creating something that feels like his.</p>
+            <p>Music has always been a major part of that identity. Tony has experimented with everything from Toronto and UK drill to darker trap, melodic hip-hop, dancehall-inspired sounds, and atmospheric music. He's interested not only in writing lyrics, but in the entire process&mdash;the cadence, ad-libs, BPM, key, production, 808s, atmosphere, and overall feeling of a song. He doesn't simply want to make music; he wants to understand why something sounds the way it does.</p>
+            <p>That same mentality appears in his content. Through livestreaming and online communities, Tony has built a world around personalities, inside jokes, recurring shows, characters, themes, and visual identities. Projects such as Coffee Time With Alfredo, Monarch After Dark, and the broader 3PT community reflect something important about him: he doesn't just want to participate in a community. He wants to build one.</p>
+            <p>His creativity extends into visual storytelling as well. Thumbnails, logos, banners, fictional scenarios, horror concepts, cinematic designs, collectible characters, gaming ideas, and elaborate visual themes are all part of his creative toolbox. He tends to think in pictures&mdash;often imagining how something should look before figuring out how to make it real.</p>
+            <p>Another defining part of Tony's personality is curiosity. He has a tendency to take an idea and keep pulling on it. A Marvel theory can turn into an exploration of Doctor Doom, the Beyonder, Battleworld, Secret Wars, and the Fantastic Four. A game can become a mystery, a theory, or an entire fictional scenario. A simple question can become a much deeper investigation into how something works. He doesn't seem particularly satisfied with the surface-level answer.</p>
+            <p>That curiosity also shows up in the way he thinks about himself. Tony has repeatedly been interested in understanding his own thought processes&mdash;asking questions about his habits, patterns, motivations, creativity, and the way his mind connects different ideas. At times, that curiosity can become intense, but underneath it is a consistent desire for self-understanding.</p>
+            <p>Financially and practically, Tony has also spent considerable time thinking about independence and the future. He's explored saving, investing, travel, education, work, and different possibilities for building a life on his own terms. He's interested in opportunities, but he's also learning the difference between taking a risk and making a calculated decision.</p>
+            <p>Tony has experimented with different sounds, brands, shows, communities, ideas, aesthetics, and versions of himself. Some projects last for a while. Others evolve into something completely different. But the pattern remains: he creates, tests, changes, and creates again. He's not someone who seems content with one identity forever. He's constantly building the next version.</p>
+            <p>And that may ultimately be the most interesting thing about Tony's story. It isn't finished. The person behind the music, livestreams, theories, thumbnails, jokes, late-night conversations, ambitious ideas, and endless questions is still figuring out exactly what he wants his life to become. He wants to create something inside it. And he's still writing the story.</p>
+          </div>
+        </details>
+        <details class="bio-card">
+          <summary>
+            <span class="bio-portrait-wrap">
+              <img class="bio-portrait" src="assets/img/img-e72082362f.webp" alt="Portrait of Nazz" width="900" height="900" loading="lazy">
+            </span>
+            <span class="bio-summary-text">
+              <span class="bio-name">Nazz <span class="role-tag">Monarch Manager</span> <span class="platform-tag">3Point</span></span>
+              <span class="bio-hint">
+                <span class="bio-hint-open">Click the photo to read the story</span>
+                <span class="bio-hint-close">Click to collapse</span>
+              </span>
+            </span>
+            <span class="bio-indicator" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M11 5h2v6h6v2h-6v6h-2v-6H5v-2h6z"/></svg></span>
+          </summary>
+          <div class="bio-text">
+            <p><strong>From the Streets of New Jersey to the Streaming World</strong></p>
+            <p>My name is Nazz, and my life has never been a straight road.</p>
+            <p>My story is one of growing up around violence, dealing with bullying, losing dreams I had worked hard to build, and eventually finding people who became more than friends. They became my brothers. Through everything I've experienced, I've learned that sometimes the people you meet later in life can become just as important as the people you grew up with.</p>
+            <p>This is my story.</p>
+            <h3>Growing Up in New Jersey</h3>
+            <p>I grew up in a development in New Jersey, surrounded by an environment where gangs, violence, and trouble were part of the world around me.</p>
+            <p>From a young age, I saw things that forced me to grow up in ways I probably shouldn't have had to.</p>
+            <p>At the same time, I dealt with being bullied for years.</p>
+            <p>Growing up while constantly feeling like you don't fit in can change the way you look at yourself and the world around you. I wasn't the kid who always had everything figured out. I struggled in school, and I never really liked being told what to do.</p>
+            <p>School was never where I felt like I belonged.</p>
+            <p>I had trouble with authority, struggled academically, and often felt like the traditional path that people expected me to follow wasn't the path meant for me.</p>
+            <p>Another major part of my childhood was growing up without much of a relationship with my father after I was around ten years old.</p>
+            <p>That absence affected me.</p>
+            <p>When someone important isn't there while you're growing up, you notice it. Even if you don't always talk about it, it becomes part of your story.</p>
+            <h3>Baseball Became My Escape</h3>
+            <p>One of the biggest constants in my younger life was baseball.</p>
+            <p>I played baseball for approximately 13 years.</p>
+            <p>For me, baseball wasn't just a sport. It was an escape.</p>
+            <p>When life outside the field became difficult, baseball gave me somewhere else to go. I could step onto the field, focus on the game, and for a while put everything else out of my head.</p>
+            <p>It gave me something to work toward and something that belonged to me.</p>
+            <p>For thirteen years, baseball was a major part of my life.</p>
+            <p>But eventually, I found another sport that would completely change the direction of my life.</p>
+            <h3>Finding Boxing</h3>
+            <p>I wanted to learn how to fight.</p>
+            <p>Part of that came from the environment I grew up in. After dealing with bullying and seeing violence around me, I wanted to become someone who could defend himself.</p>
+            <p>That's when I started boxing.</p>
+            <p>What began as an attempt to learn how to fight eventually became something much bigger.</p>
+            <p>I became good at it.</p>
+            <p>Boxing gave me discipline, confidence, and something to prove. The person who had spent years being bullied was now standing inside a boxing gym, training, improving, and discovering that he was capable of becoming stronger.</p>
+            <p>For the first time, I had something that felt like it could become my future.</p>
+            <p>I started believing that boxing could actually become a career.</p>
+            <p>Then everything changed.</p>
+            <p>An injury ended my boxing career.</p>
+            <p>The dream I had spent so much time building was suddenly taken away from me.</p>
+            <p>Losing boxing wasn't simply losing a hobby. It meant losing a future I had started imagining for myself.</p>
+            <p>I had already experienced losing things I cared about, and now I had to figure out what came next.</p>
+            <h3>A Completely Different Chapter</h3>
+            <p>After boxing, my life went through another difficult period.</p>
+            <p>I struggled with addiction and had to find my way through a part of my life that I wasn't proud of.</p>
+            <p>Eventually, my life began moving in a different direction.</p>
+            <p>I met people who changed the way I looked at my future, including the person who would become my wife, Kie Luna from Monarchs.</p>
+            <p>My relationship with Kie Luna became one of the most important parts of my life. She became someone who helped give me another reason to keep moving forward and build something better.</p>
+            <p>My life wasn't suddenly perfect. But I had a reason to keep going.</p>
+            <p>And eventually, another unexpected chapter began.</p>
+            <h3>Finding Family Online</h3>
+            <p>I never expected some of the most important people in my life to come from the internet.</p>
+            <p>Then I discovered Discord.</p>
+            <p>And Discord introduced me to someone who would become one of the most important people in my life.</p>
+            <p>That person was Tony Riggatony.</p>
+            <p>Tony became much more than another friend. He became one of my number-one brothers.</p>
+            <p>Tony became someone I could go to about practically anything. Someone who was there when I needed someone to talk to. Someone who believed in me and supported me.</p>
+            <p>Eventually, the friendship became family.</p>
+            <p>That's something I've always believed strongly in: family isn't only about blood. Sometimes family is the people who choose to stand beside you.</p>
+            <p>Tony became that person for me.</p>
+            <h3>Discovering Streaming</h3>
+            <p>After losing boxing, I needed something else to chase. Eventually, I found streaming.</p>
+            <p>Gaming had always been something I enjoyed, and streaming gave me a way to combine gaming, entertainment, creativity, and interaction with other people.</p>
+            <p>My identity as Nazz began taking shape.</p>
+            <p>I wasn't simply playing games anymore. I was building something.</p>
+            <p>I started streaming on Kick, taking the first real steps toward the dream of becoming a streamer.</p>
+            <p>But what made the journey different was that I wasn't doing it alone.</p>
+            <p>Tony believed in me. He pushed me. He encouraged me. He helped me continue chasing something that I might have otherwise given up on.</p>
+            <h3>From a Streamer to Building Something Bigger</h3>
+            <p>The dream eventually grew beyond simply going live and playing games.</p>
+            <p>We started building our own network. What began as individual dreams became something we could work on together.</p>
+            <p>We wanted to create something of our own. The idea wasn't just about streaming&mdash;it was about building a community. It was about creating something where creators could come together, entertain people, grow, and chase their own dreams.</p>
+            <p>And the most important part was that the people beside me were people I trusted. Tony Riggatony. My brother.</p>
+            <p>The same people who had encouraged me when I was still trying to figure out where my life was going were now part of the future I was building.</p>
+            <h3>Nazz the Gamer and Creator</h3>
+            <p>Today, Nazz represents much more than a username. It's the identity I've built through years of experiences.</p>
+            <p>I'm a gamer and streamer who enjoys shooters and a mixture of different games.</p>
+            <p>I've also explored music, podcasting, creative projects, entertainment, and building communities.</p>
+            <p>I've created ideas around podcasts and shows, including projects such as Lolcow Wild, Lolcow Jesters, Lolcow Test, and Shooting the Shit.</p>
+            <p>I've worked on themes, songs, characters, stories, and concepts because I've always enjoyed creating things. Streaming gave me somewhere to put that creativity.</p>
+            <p>Instead of simply consuming entertainment, I wanted to help create it.</p>
+            <h3>The Riggatony Family</h3>
+            <p>One of the biggest themes that has developed throughout my life is family.</p>
+            <p>The Riggatony family became an important part of my world.</p>
+            <p>Names like Tony Riggatony, Johnny J Riggatony, and the people who became part of that circle represent something bigger than simply usernames or online friendships.</p>
+            <p>They represent belonging.</p>
+            <p>I've used the idea of the Riggatony bloodline in music, jokes, podcasts, streams, and creative projects because the concept means something to me.</p>
+            <p>It's about loyalty. It's about having people's backs. It's about knowing that there are people you can call brothers even when you weren't born into the same family.</p>
+            <h3>The Music Behind the Story</h3>
+            <p>Music has also become another way I've told my story.</p>
+            <p>I've explored rap, rock, metal, country, Toronto-inspired trap and drill, podcast themes, gaming intros, and other styles.</p>
+            <p>A lot of the music I've created revolves around the same themes: family, loyalty, overcoming adversity, New Jersey, boxing, streaming, friendship, the Riggatony family&mdash;and most importantly, continuing to chase your dreams even after life takes something away from you.</p>
+            <p>My story has always had a rhythm to it. I went from the streets and baseball fields of New Jersey&hellip; to a boxing gym&hellip; to losing the career I thought I wanted&hellip; to rebuilding my life&hellip; to finding Kie Luna&hellip; to meeting Tony&hellip; to discovering streaming&hellip; to building a network&hellip; and now toward whatever comes next.</p>
+            <h3>The People Who Changed My Life</h3>
+            <p>There are certain people who become chapters in your story. Some people are there for a short time. Others stay.</p>
+            <p>For me, Tony is one of those people who stayed.</p>
+            <p>He didn't just tell me to chase my dreams. He helped me chase them.</p>
+            <p>He's pushed me when I've needed pushing. He's supported me when I've needed support. He's been part of the journey from the beginning of my streaming dream to the network we're building today.</p>
+            <p>And that is something I will never take for granted.</p>
+            <p>I love these boys like brothers. I appreciate everything they've done for me. And more importantly, I'm grateful for what we're still building together.</p>
+            <h3>Looking Back</h3>
+            <p>When I look back at my life, I see a lot of things that didn't go according to plan.</p>
+            <p>I see the kid who grew up around violence. I see the kid who was bullied. I see the kid who struggled in school. I see the kid who grew up without his father being there after the age of ten.</p>
+            <p>I see the baseball player who spent thirteen years on the field. I see the boxer who finally found something he was good at. I see the person who had that dream taken away by an injury.</p>
+            <p>I see the person who went through addiction and had to find a way to rebuild.</p>
+            <p>I see the husband who found Kie Luna. I see the gamer who eventually discovered streaming. And I see the person who met two strangers on Discord who eventually became brothers.</p>
+            <p>Every one of those versions of me is part of who I am. None of them can be separated from the others.</p>
+            <h3>The Future</h3>
+            <p>My story isn't finished. That's probably the most important thing I've learned.</p>
+            <p>Losing boxing didn't mean I had nothing left. Struggling didn't mean I was finished. Having dreams fall apart didn't mean I couldn't build new ones.</p>
+            <p>Sometimes life takes you down a road you never expected to travel. And sometimes that road eventually takes you somewhere better.</p>
+            <p>Today, I'm still chasing my dreams. I'm still streaming. I'm still creating. I'm still building. I'm still working toward the future. And I'm still surrounded by people who believe in me.</p>
+            <p>Tony Riggatony. My family. The people I've met through streaming and gaming. The community we've built. And everyone who has supported Nazz along the way.</p>
+            <p>I don't know exactly where this story ends. But I know one thing: we're not finished yet.</p>
+            <h3>Nazz</h3>
+            <p>I started out as a kid trying to find a place where I belonged.</p>
+            <p>I found it in baseball. Then I found it in boxing. Then I lost it. I had to rebuild.</p>
+            <p>And eventually, I found something completely different. I found streaming. I found creativity. I found a community. And most importantly, I found a brother.</p>
+            <p>Tony didn't just become a friend I met online. He became part of my life. He helped me believe that I could still build something after losing so much. He helped push me toward a dream. And now we're building the future together.</p>
+            <p>So this isn't a story about everything that went wrong. It's a story about what happened after things went wrong. It's about getting knocked down and finding another reason to stand up. It's about losing one dream and discovering another. It's about friendship becoming family. And it's about refusing to believe that your past gets to decide your future.</p>
+            <p>This is Nazz's story.</p>
+            <p>From New Jersey to the boxing ring. From the boxing ring to the screen. From losing dreams to building new ones. From strangers on Discord to brothers for life.</p>
+            <p>And we're only getting started.</p>
+          </div>
+        </details>
+        <details class="bio-card">
+          <summary>
+            <span class="bio-portrait-wrap">
+              <img class="bio-portrait" src="assets/img/img-088f285111.webp" alt="Portrait of Lucifina" width="900" height="900" loading="lazy">
+            </span>
+            <span class="bio-summary-text">
+              <span class="bio-name">Lucifina <span class="role-tag">Host</span> <span class="platform-tag">Monarchs After Dark</span></span>
+              <span class="bio-hint">
+                <span class="bio-hint-open">Click the photo to read the story</span>
+                <span class="bio-hint-close">Click to collapse</span>
+              </span>
+            </span>
+            <span class="bio-indicator" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M11 5h2v6h6v2h-6v6h-2v-6H5v-2h6z"/></svg></span>
+          </summary>
+          <div class="bio-text">
+            <p>Hi, I'm Luci&mdash;a weird nerd, a proud misfit, and someone who's never been afraid to be unapologetically herself.</p>
+            <p>For most of my life, I've been seen as the underdog. But if there's one thing I've learned, it's that you should never underestimate what I'm capable of. Being different has never stopped me from chasing what I want.</p>
+            <p>My journey into streaming began almost a year ago. I started by helping a channel reach monetization and eventually spent six months hosting. It was an experience filled with fun, challenges, and plenty of lessons. More importantly, it taught me something about knowing my worth&mdash;and recognizing when it's time to walk away from people who don't truly value me.</p>
+            <p>Leaving that chapter behind brought me back to where I belong: with my family. Tony, Nazz, Cryssi, and James became more than just people I streamed with. They became the family and community I wouldn't trade for the world.</p>
+            <p>Now, I'm stepping into a new chapter alongside Kieluna on Monarchs After Dark, and we're absolutely killing it.</p>
+            <p>I don't know exactly where this journey will take me, but I know I'm surrounded by the right people, doing something I love, and finally in a place where I belong. This is only the beginning.</p>
+            <p>I'm Lucifina. I'm weird. I'm unapologetically me. And I'm just getting started.</p>
+          </div>
+        </details>
+        <details class="bio-card">
+          <summary>
+            <span class="bio-portrait-wrap">
+              <img class="bio-portrait" src="assets/img/img-d62a36064a.webp" alt="Portrait of KieLuna" width="900" height="900" loading="lazy">
+            </span>
+            <span class="bio-summary-text">
+              <span class="bio-name">KieLuna <span class="role-tag">Host</span> <span class="platform-tag">Monarchs After Dark</span></span>
+              <span class="bio-hint">
+                <span class="bio-hint-open">Click the photo to read the story</span>
+                <span class="bio-hint-close">Click to collapse</span>
+              </span>
+            </span>
+            <span class="bio-indicator" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M11 5h2v6h6v2h-6v6h-2v-6H5v-2h6z"/></svg></span>
+          </summary>
+          <div class="bio-text">
+            <h3>A Story of Resilience, Love, and Living the Dream</h3>
+            <p>Born and raised in New Jersey, KieLuna grew up surrounded by love, family, and the kind of foundation that would eventually help carry her through some of life's most difficult chapters. From an early age, however, KieLuna knew there was something different about her&mdash;a connection to the spiritual world that she couldn't quite explain.</p>
+            <p>As a third-generation medium, her journey with spirituality began when she was only three years old, when she experienced her first encounter with the unseen. What could have been frightening became something she gradually learned to understand and embrace. Today, KieLuna continues to explore and develop her abilities through medium development classes, working to better understand her gifts and the responsibility that comes with them.</p>
+            <p>But KieLuna's story isn't only about the extraordinary. It is also about survival, perseverance, and second chances.</p>
+            <p>At just ten years old, KieLuna found herself struggling with an addiction to pain medication. Years later, at eighteen, alcohol became another battle. Her journey through addiction was difficult, but it ultimately became one of the most powerful chapters of her life. Today, KieLuna proudly celebrates 17 years clean and sober&mdash;a milestone that represents not only her strength, but the life she fought to reclaim.</p>
+            <p>Rather than allowing her past to define her, KieLuna transformed it into part of the story that makes her who she is today. Her experiences have given her compassion, understanding, and an appreciation for the preciousness of life. She knows firsthand that even when someone feels lost, there can always be a way forward.</p>
+            <p>Creativity and entertainment have also played an important role throughout KieLuna's life. With a background in theater and experience performing in multiple plays, she discovered early on how much she loved entertaining people, telling stories, and connecting with an audience. That passion would eventually lead her toward an entirely new chapter.</p>
+            <p>KieLuna has always had a deep appreciation for the beauty industry, particularly makeup and the creativity that comes with it. In 2020, she began sharing makeup videos on TikTok. She'll be the first to admit that she wasn't an expert when she started. But instead of giving up, she watched tutorials, practiced, learned from other artists, and taught herself.</p>
+            <p>Her dedication eventually caught the attention of the Online Makeup Academy, which reached out to her in 2023 and offered her the opportunity to complete their full makeup course. That opportunity became a turning point, helping her grow both creatively and personally while her TikTok community continued to grow alongside her.</p>
+            <p>Then came an opportunity that would change everything.</p>
+            <p>One day, KieLuna's husband, Nazz, asked her if she wanted to be part of a show. At first, she was hesitant. Stepping into something new can be intimidating, especially when you don't know where the road will lead. But she took a chance&mdash;and she is incredibly grateful that she did.</p>
+            <p>Today, KieLuna is a host of &ldquo;Monarchs After Dark,&rdquo; a role that brings together so many of the things she loves: entertainment, storytelling, creativity, spirituality, and, most importantly, people.</p>
+            <p>What began as a hesitant &ldquo;maybe&rdquo; became the realization of a dream.</p>
+            <p>Through the show and the community surrounding it, KieLuna has found something she treasures deeply: family. The friendships she has formed through Discord and the world of &ldquo;Monarchs After Dark&rdquo; have become some of the most meaningful relationships in her life. To her, these aren't simply people she works with or communities she participates in&mdash;they are people she hopes will remain part of her life for many years to come.</p>
+            <p>Among those she holds especially close to her heart are her husband, Nazz; her brother, Tony; her sister, Luci; and the countless friends and supporters who have stood beside her along the way.</p>
+            <p>KieLuna's journey is a reminder that a person's beginning does not determine their ending.</p>
+            <p>She is a medium who continues to learn and grow, a survivor who turned her darkest chapters into strength, a performer who found her love for entertainment, a makeup artist who taught herself to create, and a host who finally said yes to an opportunity that once made her nervous.</p>
+            <p>Most of all, she is someone who understands the value of a second chance.</p>
+            <p>Every chapter&mdash;the difficult ones, the beautiful ones, and the unexpected ones&mdash;has helped shape the woman she is today. And as KieLuna continues forward, she does so with gratitude for the people who believed in her, the lessons that shaped her, and the dreams that are still waiting to be discovered.</p>
+            <p>&ldquo;Monarchs After Dark&rdquo; may be one of her dreams come true, but KieLuna's greatest accomplishment is the life she built after everything she survived.</p>
+            <p>And she wouldn't be here without the people who walked beside her.</p>
+            <p>To her family, her friends, her brothers and sisters, her husband, and everyone who has supported her journey: thank you. This dream belongs to all of you, too.</p>
+          </div>
+        </details>
+        <details class="bio-card">
+          <summary>
+            <span class="bio-portrait-wrap">
+              <img class="bio-portrait" src="assets/img/img-ab9a30a52f.webp" alt="Portrait of Rantz" width="900" height="900" loading="lazy">
+            </span>
+            <span class="bio-summary-text">
+              <span class="bio-name">Rantz <span class="role-tag">Host</span> <span class="platform-tag">Revved up Reactons</span></span>
+              <span class="bio-hint">
+                <span class="bio-hint-open">Click the photo to read the story</span>
+                <span class="bio-hint-close">Click to collapse</span>
+              </span>
+            </span>
+            <span class="bio-indicator" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M11 5h2v6h6v2h-6v6h-2v-6H5v-2h6z"/></svg></span>
+          </summary>
+          <div class="bio-text">
+            <p><strong>Gamer James</strong>, better known to his community as <strong>Rantz</strong>, is a gaming content creator, entertainer, and storyteller whose personality has become just as important to his content as the games themselves.</p>
+            <p>At his core, Rantz is a <strong>gamer and a Minecraft lover</strong>, but describing him simply as a gaming creator doesn't quite capture what makes him stand out. His appeal comes from the combination of gaming, humor, storytelling, commentary, and the unpredictable personality he brings to every interaction.</p>
+            <p>Rantz has built his identity around being <strong>funny, outspoken, and entertaining</strong>. Whether he's playing a game, telling a story, reacting to something happening around him, or simply talking with his community, there is a strong emphasis on personality. His content isn't necessarily about watching someone quietly play a game&mdash;it is about watching <strong>Rantz be Rantz</strong>.</p>
+            <h3>The Gamer</h3>
+            <p>Gaming has always been one of the foundations of Rantz's identity. Among the games associated with him, <strong>Minecraft holds a particular place</strong>, reflecting both his love for gaming and his ability to turn relatively simple gameplay into entertainment through commentary and storytelling.</p>
+            <p>For Rantz, gaming isn't just about winning or completing objectives. It's a way to create moments, jokes, stories, arguments, reactions, and memories with the people around him.</p>
+            <p>That philosophy has helped shape the broader personality behind the name.</p>
+            <h3>The Storyteller</h3>
+            <p>One of Rantz's defining characteristics is his ability to <strong>tell a story</strong>.</p>
+            <p>A normal situation can become an entire event when Rantz explains it. His storytelling style relies heavily on personality, timing, humor, exaggeration for comedic effect, and the ability to make his audience feel like they're sitting in the room listening to the story themselves.</p>
+            <p>This is an important part of what separates Rantz from a traditional gaming personality. The game may provide the setting, but <strong>the personality provides the entertainment</strong>.</p>
+            <h3>The Personality Behind Rantz</h3>
+            <p>The name <strong>Rantz</strong> has become more than an online alias. It represents a recognizable personality and a particular style of entertainment.</p>
+            <p>Rantz is the kind of creator who isn't afraid to have an opinion, make a joke, challenge someone, or turn an ordinary conversation into a memorable moment. His content can move quickly between gaming, comedy, storytelling, commentary, and community interaction.</p>
+            <p>That unpredictability is part of the appeal.</p>
+            <p>There is also a strong community element surrounding Rantz. His audience isn't treated simply as viewers&mdash;they become part of the conversations, jokes, debates, and moments that make up his content.</p>
+            <h3>More Than Gaming</h3>
+            <p>As Rantz's identity has developed, gaming has become only one part of a larger entertainment persona.</p>
+            <p>The broader Rantz brand is built around <strong>conversation, humor, personalities, stories, and community</strong>. That gives him the flexibility to exist outside of a single game or format.</p>
+            <p>Whether the subject is Minecraft, another game, a ridiculous story, something happening within the community, or simply whatever happens to be going on that day, the central attraction remains the same: Rantz himself.</p>
+            <h3>The Legacy of Gamer James</h3>
+            <p>What makes Gamer James interesting isn't simply that he plays games.</p>
+            <p>It's that he has taken something millions of people do&mdash;gaming&mdash;and turned it into a vehicle for personality and storytelling.</p>
+            <p>The name Gamer James represents the gamer. The name Rantz represents the entertainer.</p>
+            <p>Together, they describe a creator whose identity has been built around humor, gaming, storytelling, and the people who continue to show up for the next stream, the next story, and the next unpredictable moment.</p>
+            <p>Gamer James&mdash;Rantz&mdash;is ultimately a storyteller who happens to have gaming at the center of his world.</p>
+            <p>And for his community, that's what makes Rantz, Rantz.</p>
+          </div>
+        </details>
+        <details class="bio-card">
+          <summary>
+            <span class="bio-portrait-wrap">
+              <img class="bio-portrait" src="assets/img/img-41fd730550.webp" alt="Portrait of Kay C" width="900" height="900" loading="lazy">
+            </span>
+            <span class="bio-summary-text">
+              <span class="bio-name">Kay C <span class="role-tag">Clipper</span></span>
+              <span class="bio-hint">
+                <span class="bio-hint-open">Click the photo to read the story</span>
+                <span class="bio-hint-close">Click to collapse</span>
+              </span>
+            </span>
+            <span class="bio-indicator" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M11 5h2v6h6v2h-6v6h-2v-6H5v-2h6z"/></svg></span>
+          </summary>
+          <div class="bio-text">
+            <p><strong>Kay C</strong> is one of the personalities who has become part of the growing creator community surrounding Tony, 3 Point, the Monarchs, and the wider streaming circle. Known simply as Kay C, he has established his own identity within a community built around livestreaming, collaboration, entertainment, and the personalities that make each broadcast different from the last.</p>
+            <p>Unlike a creator who exists entirely on his own, Kay C's story is closely connected to the larger group. His appearances and involvement have helped make the community feel like a shared universe rather than a collection of unrelated streams.</p>
+            <h3>Becoming Part of the Crew</h3>
+            <p>Kay C became part of a regular streaming lineup alongside personalities such as Tony, Nazz, TVP, and CRBPRDX.</p>
+            <p>His name has appeared repeatedly in the community's schedules, showing that his involvement wasn't simply occasional. He became one of the recurring personalities trusted with his own streaming slots and a place within the group's programming.</p>
+            <p>The schedules have included Kay C on multiple days, including appearances alongside other members of the crew. This collaborative approach became one of the defining characteristics of the community.</p>
+            <h3>The 3 Point Connection</h3>
+            <p>A major part of Kay C's story is his connection to the 3 Point community.</p>
+            <p>3 Point developed into more than just a name. It became a shared identity surrounding creators, livestreams, Discord culture, recurring shows, inside jokes, and an expanding cast of personalities.</p>
+            <p>Kay C became part of that world during a period when the community was constantly evolving.</p>
+            <p>The group experimented with different programming concepts and themed days, giving each personality opportunities to bring their own energy into the overall community.</p>
+            <p>Kay C's role within that environment helped contribute to the sense that 3 Point was becoming a genuine creator collective.</p>
+            <h3>The Streaming Era</h3>
+            <p>Kay C's involvement is particularly tied to the group's livestreaming culture.</p>
+            <p>The community's schedule has gone through several versions, with different creators receiving specific times throughout the week. Kay C has been included in these rotations, demonstrating his role as one of the people helping keep the community's content active.</p>
+            <p>Rather than every stream being centered around one person, the group developed a rotating system where different creators could take over at different times.</p>
+            <p>Kay C became one of those recurring faces.</p>
+            <p>That format allowed personalities to develop their own audiences while still remaining connected to the larger community.</p>
+            <h3>Kay C and the Other Creators</h3>
+            <p>One of the most important aspects of Kay C's place in the community is collaboration.</p>
+            <p>He exists within a network that includes Tony, Nazz, TVP, CRBPRDX, and others.</p>
+            <p>Each person brings their own personality and perspective, and much of the entertainment comes from the interactions between them.</p>
+            <p>Kay C contributes to that chemistry simply by being part of the cast.</p>
+            <p>The community has never been completely predictable. Streams can shift between jokes, arguments, serious discussions, chaotic moments, and completely unexpected situations. That unpredictability has become part of what makes the group distinctive.</p>
+            <h3>The Culture Around Kay C</h3>
+            <p>Kay C is also part of the culture that developed around the Monarchs and 3 Point communities.</p>
+            <p>Names such as Monarch After Dark, 3 Point, and the various creator identities have helped create an environment with its own terminology, branding, traditions, and running jokes.</p>
+            <p>Kay C's presence places him within that culture.</p>
+            <p>He isn't simply a name on a schedule. He's one of the personalities that audiences can associate with the broader era of the community.</p>
+            <h3>His Place in the Story</h3>
+            <p>What makes Kay C's story interesting is that his biography is still being written.</p>
+            <p>The community has gone through multiple changes in schedules, shows, branding, and personalities. Through those changes, Kay C has remained part of the larger creator network.</p>
+            <p>His story isn't defined by one single moment. Instead, it is defined by his continued presence and involvement in a community that has continued to grow and change.</p>
+            <h3>Legacy</h3>
+            <p>Kay C's place in the 3 Point and Monarchs era represents the importance of the people behind the community.</p>
+            <p>A creator community isn't built around one person alone. It is built from the personalities who show up, collaborate, argue, joke around, create memories, and give viewers reasons to keep coming back.</p>
+            <p>Kay C is one of those personalities.</p>
+            <p>As the community continues to evolve, his name remains part of its history&mdash;a recurring member of the creator circle that helped shape the 3 Point / Monarchs era.</p>
+            <p>And because the story is still unfolding, Kay C's biography doesn't really have an ending yet. This is only the beginning.</p>
+          </div>
+        </details>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <div class="wrap">
+      <p>&copy; 2026 The Tony Verse Directory</p>
+      <p>Built for the crew.</p>
+    </div>
+  </footer>
+
+  <div class="cow-band">
+    <div class="wrap">
+      <a class="btn btn-solid cow-btn" href="https://claude.ai/code/artifact/33bba782-61ba-405d-bb4f-a7618ac63d24" target="_blank" rel="noopener noreferrer">
+        <span class="cow-emoji" aria-hidden="true">🐄</span> Visit Our Other Site
+      </a>
+    </div>
+  </div>
+
+  <div class="music-player" id="music-player">
+    <div class="music-emoji" id="music-emoji" aria-hidden="true">🐍</div>
+    <div class="music-meta">
+      <span class="music-label">The Tony Verse Directory Mix</span>
+      <span class="music-count" id="music-count">Track 1 / 5</span>
+    </div>
+    <div class="music-controls">
+      <button class="music-btn music-play" id="music-play" type="button" aria-label="Play">
+        <svg id="music-play-icon" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+        <svg id="music-pause-icon" viewBox="0 0 24 24" style="display:none;"><path d="M6 5h4v14H6zM14 5h4v14h-4z"/></svg>
+      </button>
+      <button class="music-btn music-skip" id="music-skip" type="button" aria-label="Skip to next track">
+        <svg viewBox="0 0 24 24"><path d="M6 5v14l9-7zM17 5h2v14h-2z"/></svg>
+      </button>
+    </div>
+    <audio id="music-audio" preload="none"></audio>
+  </div>
+
+  <div class="broadcast-ticker" role="status" aria-label="Nazz weight loss update">
+    <div class="ticker-badge">
+      <img class="ticker-avatar" src="assets/img/img-faecee286c.webp" alt="Nazz" width="28" height="28">
+      <span class="ticker-badge-text">Update</span>
+    </div>
+    <div class="ticker-track">
+      <div class="ticker-track-inner">
+        <div class="ticker-content">
+          <span class="ticker-text">NAZZ IS AT 286 POUNDS &mdash; CONGRATS</span>
+          <span class="ticker-sep" aria-hidden="true">&#9733;</span>
+          <span class="ticker-text">NAZZ IS AT 286 POUNDS &mdash; CONGRATS</span>
+          <span class="ticker-sep" aria-hidden="true">&#9733;</span>
+          <span class="ticker-text">NAZZ IS AT 286 POUNDS &mdash; CONGRATS</span>
+          <span class="ticker-sep" aria-hidden="true">&#9733;</span>
+        </div>
+        <div class="ticker-content" aria-hidden="true">
+          <span class="ticker-text">NAZZ IS AT 286 POUNDS &mdash; CONGRATS</span>
+          <span class="ticker-sep" aria-hidden="true">&#9733;</span>
+          <span class="ticker-text">NAZZ IS AT 286 POUNDS &mdash; CONGRATS</span>
+          <span class="ticker-sep" aria-hidden="true">&#9733;</span>
+          <span class="ticker-text">NAZZ IS AT 286 POUNDS &mdash; CONGRATS</span>
+          <span class="ticker-sep" aria-hidden="true">&#9733;</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<script>
+(function(){
+  var YT_API_KEY_DEFAULT = "AIzaSyC-bR5OiOA7DRBfejn_JTe1-rA-8b0xa5o";
+
+  // ---- Growth trend, computed from the daily snapshot history below ----
+  function renderTrends(){
+    var historyEl = document.getElementById('stats-history');
+    if (!historyEl) return;
+    var history;
+    try { history = JSON.parse(historyEl.textContent); } catch (e) { return; }
+    if (!history || !history.length) return;
+
+    var latest = history[history.length - 1];
+    var latestDate = new Date(latest.date + 'T00:00:00Z');
+    var targetTime = latestDate.getTime() - 7 * 24 * 60 * 60 * 1000;
+
+    // Find the snapshot closest to (but not after) 7 days before the latest one.
+    var baseline = null;
+    for (var i = 0; i < history.length; i++) {
+      var d = new Date(history[i].date + 'T00:00:00Z');
+      if (d.getTime() <= targetTime) baseline = history[i];
+    }
+
+    document.querySelectorAll('.stat-tile[data-history-key]').forEach(function(tile){
+      var key = tile.getAttribute('data-history-key');
+      var trendEl = tile.querySelector('[data-field="trend"]');
+      if (!trendEl) return;
+      var latestSubs = latest[key] && typeof latest[key].subs === 'number' ? latest[key].subs : null;
+      if (latestSubs == null) { trendEl.textContent = ''; return; }
+
+      if (!baseline || history.length < 2) {
+        trendEl.textContent = 'Tracking since ' + latest.date;
+        trendEl.classList.remove('is-up');
+        return;
+      }
+      var baseSubs = baseline[key] && typeof baseline[key].subs === 'number' ? baseline[key].subs : null;
+      if (baseSubs == null) { trendEl.textContent = 'Tracking since ' + latest.date; return; }
+
+      var delta = latestSubs - baseSubs;
+      if (delta > 0) {
+        trendEl.textContent = '+' + delta + ' subs this week';
+        trendEl.classList.add('is-up');
+      } else if (delta < 0) {
+        trendEl.textContent = delta + ' subs this week';
+        trendEl.classList.remove('is-up');
+      } else {
+        trendEl.textContent = 'No change this week';
+        trendEl.classList.remove('is-up');
+      }
+    });
+  }
+  renderTrends();
+
+  // Highlight today's column in the schedule table (Mon=1 ... Fri=5; no-op on weekends).
+  (function highlightToday(){
+    var day = new Date().getDay();
+    var cells = document.querySelectorAll('.schedule [data-day="' + day + '"]');
+    cells.forEach(function(cell){ cell.classList.add('today-col'); });
+  })();
+  var tiles = Array.prototype.slice.call(document.querySelectorAll('.stat-tile'));
+  var updatedEl = document.getElementById('stats-updated');
+  var refreshBtn = document.getElementById('stats-refresh');
+  var compact = new Intl.NumberFormat('en', { notation: 'compact', maximumFractionDigits: 1 });
+
+  function formatClock(date){
+    var h = date.getHours() % 12 || 12;
+    var m = String(date.getMinutes()).padStart(2, '0');
+    var ampm = date.getHours() >= 12 ? 'PM' : 'AM';
+    return h + ':' + m + ' ' + ampm;
+  }
+
+  function setTile(tile, subsText, viewsText, isLive){
+    var subsEl = tile.querySelector('[data-field="subs"]');
+    var viewsEl = tile.querySelector('[data-field="views"]');
+    var liveEl = tile.querySelector('[data-field="live-updated"]');
+    if (subsEl) subsEl.textContent = subsText;
+    if (viewsEl) viewsEl.textContent = viewsText;
+    if (liveEl) {
+      liveEl.textContent = isLive
+        ? 'Live · updated ' + formatClock(new Date())
+        : 'Live · retrying next cycle';
+    }
+  }
+
+  function statsUrl(handle, key){
+    return 'https://www.googleapis.com/youtube/v3/channels?part=statistics'
+      + '&forHandle=' + encodeURIComponent(handle)
+      + '&key=' + encodeURIComponent(key);
+  }
+
+  function parseStatsPayload(data){
+    var item = data && data.items && data.items[0];
+    if (!item) throw new Error('channel not found');
+    return item.statistics || {};
+  }
+
+  function fetchStats(handle, key){
+    return fetch(statsUrl(handle, key))
+      .then(function(res){
+        if (!res.ok) throw new Error('http ' + res.status);
+        return res.json();
+      })
+      .then(parseStatsPayload);
+  }
+
+  // Same call, routed through a public CORS relay — a fallback for the case
+  // where a visitor's browser (or network) blocks the direct cross-origin
+  // call to googleapis.com even though the key itself is fine. Free relay
+  // services go down on their own from time to time, so more than one is
+  // tried in order rather than betting everything on a single one.
+  var STATS_RELAYS = [
+    function(url){ return 'https://api.allorigins.win/raw?url=' + encodeURIComponent(url); },
+    function(url){ return 'https://api.codetabs.com/v1/proxy?quest=' + encodeURIComponent(url); },
+    function(url){ return 'https://corsproxy.io/?url=' + encodeURIComponent(url); },
+    function(url){ return 'https://cors.eu.org/' + url; }
+  ];
+
+  function fetchStatsViaRelay(handle, key, relayIndex){
+    relayIndex = relayIndex || 0;
+    if (relayIndex >= STATS_RELAYS.length) return Promise.reject(new Error('all relays failed'));
+    var target = STATS_RELAYS[relayIndex](statsUrl(handle, key));
+    return fetch(target)
+      .then(function(res){
+        if (!res.ok) throw new Error('relay http ' + res.status);
+        return res.json();
+      })
+      .then(parseStatsPayload)
+      .catch(function(err){
+        console.warn('The Tony Verse Directory: relay', relayIndex + 1, 'of', STATS_RELAYS.length, 'failed for', handle, err);
+        return fetchStatsViaRelay(handle, key, relayIndex + 1);
+      });
+  }
+
+  // Tries each key in order (direct, then through the relay chain) and uses
+  // the first one that succeeds — lets a tile keep working even if one key
+  // hits a quota limit or gets revoked, or a direct cross-origin call gets
+  // blocked.
+  function fetchStatsWithFallback(handle, keys, i){
+    i = i || 0;
+    if (i >= keys.length) return Promise.reject(new Error('all keys failed'));
+    return fetchStats(handle, keys[i]).catch(function(err){
+      console.warn('The Tony Verse Directory: key', i + 1, 'of', keys.length, 'failed direct for', handle, err);
+      return fetchStatsViaRelay(handle, keys[i]).catch(function(relayErr){
+        console.warn('The Tony Verse Directory: key', i + 1, 'of', keys.length, 'failed via every relay for', handle, relayErr);
+        return fetchStatsWithFallback(handle, keys, i + 1);
+      });
+    });
+  }
+
+  function loadOne(tile){
+    var handle = tile.getAttribute('data-handle');
+    var keysAttr = tile.getAttribute('data-keys') || tile.getAttribute('data-key') || YT_API_KEY_DEFAULT;
+    var keys = keysAttr.split(',').map(function(k){ return k.trim(); }).filter(Boolean);
+
+    return fetchStatsWithFallback(handle, keys)
+      .then(function(stats){
+        var subsText = stats.hiddenSubscriberCount
+          ? 'Hidden'
+          : compact.format(Number(stats.subscriberCount || 0));
+        var viewsText = compact.format(Number(stats.viewCount || 0)) + ' views';
+        setTile(tile, subsText, viewsText, true);
+      })
+      .catch(function(err){
+        // Leave whatever numbers are already on the tile (seeded or last
+        // successful fetch) rather than blanking them out on a failed call.
+        var liveEl = tile.querySelector('[data-field="live-updated"]');
+        if (liveEl) liveEl.textContent = 'Live · retrying next cycle';
+        console.warn('The Tony Verse Directory: channel stats failed for', handle, err);
+      });
+  }
+
+  function loadAll(){
+    if (refreshBtn) { refreshBtn.disabled = true; refreshBtn.textContent = 'Refreshing…'; }
+    if (updatedEl) updatedEl.textContent = 'Loading…';
+    Promise.all(tiles.map(loadOne)).then(function(){
+      if (updatedEl) updatedEl.textContent = 'Updated ' + formatClock(new Date());
+      if (refreshBtn) { refreshBtn.disabled = false; refreshBtn.textContent = 'Refresh'; }
+    });
+  }
+
+  // ---- Live-now / most-recent-stream link, per channel ----
+  // One search.list call per channel returns both the newest upload and its
+  // liveBroadcastContent flag, which is "live" exactly when that channel is
+  // currently streaming. When a channel goes live this swaps the tile's link
+  // straight to that broadcast; otherwise it falls back to their latest video.
+  function searchUrl(channelId, key){
+    return 'https://www.googleapis.com/youtube/v3/search?part=snippet'
+      + '&channelId=' + encodeURIComponent(channelId)
+      + '&order=date&type=video&maxResults=1'
+      + '&key=' + encodeURIComponent(key);
+  }
+
+  function parseSearchPayload(data){
+    var item = data && data.items && data.items[0];
+    if (!item) throw new Error('no videos found');
+    var vid = item.id && item.id.videoId;
+    if (!vid) throw new Error('no video id');
+    return {
+      videoId: vid,
+      title: (item.snippet && item.snippet.title) || '',
+      liveBroadcastContent: (item.snippet && item.snippet.liveBroadcastContent) || 'none'
+    };
+  }
+
+  function fetchSearch(channelId, key){
+    return fetch(searchUrl(channelId, key))
+      .then(function(res){
+        if (!res.ok) throw new Error('http ' + res.status);
+        return res.json();
+      })
+      .then(parseSearchPayload);
+  }
+
+  function fetchSearchViaRelay(channelId, key, relayIndex){
+    relayIndex = relayIndex || 0;
+    if (relayIndex >= STATS_RELAYS.length) return Promise.reject(new Error('all relays failed'));
+    var target = STATS_RELAYS[relayIndex](searchUrl(channelId, key));
+    return fetch(target)
+      .then(function(res){
+        if (!res.ok) throw new Error('relay http ' + res.status);
+        return res.json();
+      })
+      .then(parseSearchPayload)
+      .catch(function(err){
+        console.warn('The Tony Verse Directory: live-check relay', relayIndex + 1, 'of', STATS_RELAYS.length, 'failed for', channelId, err);
+        return fetchSearchViaRelay(channelId, key, relayIndex + 1);
+      });
+  }
+
+  function fetchSearchWithFallback(channelId, keys, i){
+    i = i || 0;
+    if (i >= keys.length) return Promise.reject(new Error('all keys failed'));
+    return fetchSearch(channelId, keys[i]).catch(function(err){
+      console.warn('The Tony Verse Directory: live-check key', i + 1, 'of', keys.length, 'failed direct for', channelId, err);
+      return fetchSearchViaRelay(channelId, keys[i]).catch(function(relayErr){
+        console.warn('The Tony Verse Directory: live-check key', i + 1, 'of', keys.length, 'failed via every relay for', channelId, relayErr);
+        return fetchSearchWithFallback(channelId, keys, i + 1);
+      });
+    });
+  }
+
+  // ---- Concurrent viewer count for whichever video is currently live ----
+  function viewersUrl(videoId, key){
+    return 'https://www.googleapis.com/youtube/v3/videos?part=liveStreamingDetails'
+      + '&id=' + encodeURIComponent(videoId)
+      + '&key=' + encodeURIComponent(key);
+  }
+
+  function parseViewersPayload(data){
+    var item = data && data.items && data.items[0];
+    var details = item && item.liveStreamingDetails;
+    if (!details || details.concurrentViewers == null) throw new Error('no concurrent viewer count');
+    return Number(details.concurrentViewers);
+  }
+
+  function fetchViewers(videoId, key){
+    return fetch(viewersUrl(videoId, key))
+      .then(function(res){
+        if (!res.ok) throw new Error('http ' + res.status);
+        return res.json();
+      })
+      .then(parseViewersPayload);
+  }
+
+  function fetchViewersViaRelay(videoId, key, relayIndex){
+    relayIndex = relayIndex || 0;
+    if (relayIndex >= STATS_RELAYS.length) return Promise.reject(new Error('all relays failed'));
+    var target = STATS_RELAYS[relayIndex](viewersUrl(videoId, key));
+    return fetch(target)
+      .then(function(res){
+        if (!res.ok) throw new Error('relay http ' + res.status);
+        return res.json();
+      })
+      .then(parseViewersPayload)
+      .catch(function(err){
+        return fetchViewersViaRelay(videoId, key, relayIndex + 1);
+      });
+  }
+
+  function fetchViewersWithFallback(videoId, keys, i){
+    i = i || 0;
+    if (i >= keys.length) return Promise.reject(new Error('all keys failed'));
+    return fetchViewers(videoId, keys[i]).catch(function(){
+      return fetchViewersViaRelay(videoId, keys[i]).catch(function(){
+        return fetchViewersWithFallback(videoId, keys, i + 1);
+      });
+    });
+  }
+
+  function loadLiveOne(tile){
+    var channelId = tile.getAttribute('data-channel-id');
+    var linkEl = tile.querySelector('[data-field="live-link"]');
+    if (!channelId || !linkEl) return Promise.resolve();
+
+    var keysAttr = tile.getAttribute('data-keys') || tile.getAttribute('data-key') || YT_API_KEY_DEFAULT;
+    var keys = keysAttr.split(',').map(function(k){ return k.trim(); }).filter(Boolean);
+    var badgeEl = tile.querySelector('[data-field="live-badge"]');
+    var titleEl = tile.querySelector('[data-field="live-title"]');
+    var viewersEl = tile.querySelector('[data-field="live-viewers"]');
+
+    return fetchSearchWithFallback(channelId, keys)
+      .then(function(video){
+        var isLive = video.liveBroadcastContent === 'live';
+        var isUpcoming = video.liveBroadcastContent === 'upcoming';
+        linkEl.href = 'https://www.youtube.com/watch?v=' + video.videoId;
+        linkEl.classList.add('is-visible');
+        linkEl.classList.toggle('is-live', isLive);
+        linkEl.classList.toggle('is-upcoming', isUpcoming);
+        if (badgeEl) badgeEl.textContent = isLive ? 'Live Now' : (isUpcoming ? 'Scheduled' : 'Most Recent');
+        if (titleEl) titleEl.textContent = video.title;
+
+        // A new video id here means the channel just went live, just posted
+        // a scheduled stream, or just uploaded — pull fresh subscriber/view
+        // numbers right away instead of waiting for the next hourly cycle.
+        var prevId = tile.getAttribute('data-last-video-id');
+        tile.setAttribute('data-last-video-id', video.videoId);
+        if (prevId && prevId !== video.videoId) {
+          loadOne(tile);
+        }
+
+        if (isLive) {
+          fetchViewersWithFallback(video.videoId, keys)
+            .then(function(count){
+              if (viewersEl) {
+                viewersEl.textContent = '👁 ' + compact.format(count) + ' watching now';
+                viewersEl.classList.add('is-visible');
+              }
+            })
+            .catch(function(err){
+              console.warn('The Tony Verse Directory: viewer count unavailable for', channelId, err);
+            });
+        } else if (viewersEl) {
+          viewersEl.classList.remove('is-visible');
+        }
+
+        // Mirror the same live status onto that host's row in the weekly
+        // schedule table, so the "LIVE" badge there tracks the real YouTube
+        // API state too, not just the channel stats section.
+        var historyKey = tile.getAttribute('data-history-key');
+        if (historyKey) {
+          var scheduleRow = document.querySelector('.schedule tr[data-history-key="' + historyKey + '"]');
+          var scheduleBadge = scheduleRow && scheduleRow.querySelector('[data-field="schedule-live"]');
+          if (scheduleBadge) scheduleBadge.classList.toggle('is-visible', isLive);
+        }
+      })
+      .catch(function(err){
+        // Leave whatever link is already showing (seeded or last successful
+        // check) rather than hiding it on a failed call.
+        console.warn('The Tony Verse Directory: live-check failed for', channelId, err);
+      });
+  }
+
+  function loadLiveAll(){
+    tiles.forEach(loadLiveOne);
+  }
+
+  if (refreshBtn) refreshBtn.addEventListener('click', loadAll);
+  if (refreshBtn) refreshBtn.addEventListener('click', loadLiveAll);
+  loadAll();
+  loadLiveAll();
+
+  // Tiles marked data-live poll on their own cadence (data-poll-ms) so their
+  // numbers keep moving without anyone clicking Refresh.
+  var LIVE_POLL_MS = 600000; // 10 minutes, while the channel is actually live
+
+  tiles.forEach(function(tile){
+    if (tile.getAttribute('data-live') !== '1') return;
+    var interval = parseInt(tile.getAttribute('data-poll-ms'), 10) || 3600000;
+    setInterval(function(){ loadOne(tile); }, interval);
+
+    // Live/most-recent check reschedules itself after every run: every 10
+    // minutes while the tile is actually live, back to the normal hourly
+    // cadence the instant it isn't — so there's no separate fast timer left
+    // running once the stream ends. loadLiveAll() above already covers the
+    // immediate first paint, so this only arms the *next* check.
+    function scheduleNextLiveCheck(){
+      var linkEl = tile.querySelector('[data-field="live-link"]');
+      var isLive = !!(linkEl && linkEl.classList.contains('is-live'));
+      var delay = isLive ? LIVE_POLL_MS : interval;
+      setTimeout(function(){
+        loadLiveOne(tile).then(scheduleNextLiveCheck);
+      }, delay);
+    }
+    scheduleNextLiveCheck();
+  });
+})();
+</script>
+
+<script>
+(function(){
+  // Copy-to-clipboard for Discord usernames in the Crew section.
+  document.querySelectorAll('.copy-btn').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      var value = btn.getAttribute('data-copy') || '';
+      var done = function(){
+        var original = btn.textContent;
+        btn.textContent = 'Copied';
+        btn.classList.add('is-copied');
+        setTimeout(function(){
+          btn.textContent = original;
+          btn.classList.remove('is-copied');
+        }, 1600);
+      };
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(value).then(done).catch(function(){
+          btn.textContent = 'Copy failed';
+          setTimeout(function(){ btn.textContent = 'Copy'; }, 1600);
+        });
+      } else {
+        // Fallback for browsers without the Clipboard API.
+        var tmp = document.createElement('textarea');
+        tmp.value = value;
+        tmp.style.position = 'fixed';
+        tmp.style.left = '-9999px';
+        document.body.appendChild(tmp);
+        tmp.select();
+        try { document.execCommand('copy'); done(); }
+        catch (e) { btn.textContent = 'Copy failed'; setTimeout(function(){ btn.textContent = 'Copy'; }, 1600); }
+        document.body.removeChild(tmp);
+      }
+    });
+  });
+})();
+</script>
+
+<script>
+(function(){
+  // Floating mini-player: shuffles through original tracks with play/pause + skip.
+  var TRACKS = [
+    { emoji: '🐍', src: 'assets/audio/track-cc8d7ef691.mp3' },
+    { emoji: '😈', src: 'assets/audio/track-5bdd2f845e.mp3' },
+    { emoji: '🤠', src: 'assets/audio/track-659204dfd8.mp3' },
+    { emoji: '🌑', src: 'assets/audio/track-60d2f4f28a.mp3' },
+    { emoji: '🌕', src: 'assets/audio/track-307f24d256.mp3' }
+  ];
+
+  var player = document.getElementById('music-player');
+  var audio = document.getElementById('music-audio');
+  var playBtn = document.getElementById('music-play');
+  var skipBtn = document.getElementById('music-skip');
+  var emojiEl = document.getElementById('music-emoji');
+  var countEl = document.getElementById('music-count');
+  var playIcon = document.getElementById('music-play-icon');
+  var pauseIcon = document.getElementById('music-pause-icon');
+  if (!player || !audio || !playBtn || !skipBtn) return;
+
+  // Fisher-Yates shuffle of track indices, with a fresh reshuffle (avoiding an
+  // immediate repeat of the last track played) once the queue runs out.
+  var queue = [];
+  var queuePos = 0;
+  var current = -1;
+
+  function shuffleIndices(avoid){
+    var idx = TRACKS.map(function(_, i){ return i; });
+    for (var i = idx.length - 1; i > 0; i--){
+      var j = Math.floor(Math.random() * (i + 1));
+      var t = idx[i]; idx[i] = idx[j]; idx[j] = t;
+    }
+    if (avoid !== undefined && idx.length > 1 && idx[0] === avoid){
+      idx.push(idx.shift());
+    }
+    return idx;
+  }
+
+  function ensureQueue(){
+    if (queuePos >= queue.length){
+      queue = shuffleIndices(current);
+      queuePos = 0;
+    }
+  }
+
+  function setPlayingUI(isPlaying){
+    player.classList.toggle('is-playing', isPlaying);
+    playIcon.style.display = isPlaying ? 'none' : '';
+    pauseIcon.style.display = isPlaying ? '' : 'none';
+    playBtn.setAttribute('aria-label', isPlaying ? 'Pause' : 'Play');
+  }
+
+  function loadTrack(index){
+    current = index;
+    var track = TRACKS[index];
+    audio.src = track.src;
+    emojiEl.textContent = track.emoji;
+    countEl.textContent = 'Track ' + (index + 1) + ' / ' + TRACKS.length;
+  }
+
+  function playNext(autoplay){
+    ensureQueue();
+    var index = queue[queuePos];
+    queuePos++;
+    loadTrack(index);
+    if (autoplay) {
+      audio.play().catch(function(){ setPlayingUI(false); });
+    }
+  }
+
+  playBtn.addEventListener('click', function(){
+    if (current === -1) {
+      playNext(true);
+      return;
+    }
+    if (audio.paused) {
+      audio.play().catch(function(){ setPlayingUI(false); });
+    } else {
+      audio.pause();
+    }
+  });
+
+  skipBtn.addEventListener('click', function(){
+    var wasPlaying = current === -1 || !audio.paused;
+    playNext(wasPlaying);
+  });
+
+  audio.addEventListener('play', function(){ setPlayingUI(true); });
+  audio.addEventListener('pause', function(){ setPlayingUI(false); });
+  audio.addEventListener('ended', function(){ playNext(true); });
+
+  // Load the first track (silently, no autoplay) so the widget shows real
+  // info before anyone presses play.
+  ensureQueue();
+  loadTrack(queue[0]);
+  queuePos = 1;
+})();
+</script>
+
+<script>
+(function(){
+  // Live Discord server tracker — member count only. No bot or token
+  // involved anywhere here, just Discord's own public, no-auth invite-resolve
+  // endpoint, tried directly first and then routed through a public CORS
+  // relay as a fallback if a visitor's browser blocks the direct cross-origin
+  // call. The real member count seeded in the HTML stays on screen if every
+  // method fails on a given refresh — the card never blanks out to nothing.
+  var card = document.getElementById('discord-tracker');
+  if (!card) return;
+  var inviteCode = card.getAttribute('data-invite');
+  var nameEl = document.getElementById('tracker-name');
+  var iconEl = document.getElementById('tracker-icon');
+  var membersEl = document.getElementById('tracker-members');
+
+  function fmt(n){
+    try { return new Intl.NumberFormat('en', { notation: 'compact' }).format(n); }
+    catch (e) { return String(n); }
+  }
+
+  function fetchJSON(url){
+    return fetch(url).then(function(res){
+      if (!res.ok) throw new Error('http ' + res.status);
+      return res.json();
+    });
+  }
+
+  function fromInvite(url){
+    return fetchJSON(url).then(function(data){
+      if (!data || (typeof data.approximate_member_count !== 'number' && !(data.guild && data.guild.name))) {
+        throw new Error('unexpected invite payload');
+      }
+      return {
+        name: data.guild && data.guild.name,
+        icon: (data.guild && data.guild.icon) ? ('https://cdn.discordapp.com/icons/' + data.guild.id + '/' + data.guild.icon + '.png?size=64') : null,
+        members: data.approximate_member_count
+      };
+    });
+  }
+
+  function viaDirectInvite(){
+    return fromInvite('https://discord.com/api/v10/invites/' + inviteCode + '?with_counts=true');
+  }
+
+  function viaProxiedInvite(){
+    var target = 'https://discord.com/api/v10/invites/' + inviteCode + '?with_counts=true';
+    return fromInvite('https://api.allorigins.win/raw?url=' + encodeURIComponent(target));
+  }
+
+  function apply(info){
+    if (info.name) nameEl.textContent = info.name;
+    if (info.icon) { iconEl.src = info.icon; iconEl.style.display = ''; }
+    if (typeof info.members === 'number') membersEl.textContent = fmt(info.members);
+    card.classList.remove('is-offline');
+  }
+
+  function load(){
+    viaDirectInvite()
+      .catch(viaProxiedInvite)
+      .then(apply)
+      .catch(function(err){
+        console.warn('The Tony Verse Directory: Discord tracker — every live method failed this round, keeping last known member count', err);
+        card.classList.add('is-offline');
+      });
+  }
+
+  load();
+  setInterval(load, 300000);
+})();
+</script>
+
+<script>
+(function(){
+  // Tree watcher: keeps ticking up in real time from the elapsed-growth
+  // snapshot baked in at publish time, so it always reads "live."
+  var el = document.getElementById('tree-timer');
+  var wrap = document.getElementById('tree-watcher');
+  if (!el || !wrap) return;
+  var baseSeconds = parseInt(wrap.getAttribute('data-base-seconds'), 10) || 0;
+  var asOf = Date.parse(wrap.getAttribute('data-as-of'));
+  if (isNaN(asOf)) asOf = Date.now();
+
+  function pad(n){ return n < 10 ? '0' + n : String(n); }
+
+  function render(){
+    var elapsed = baseSeconds + Math.floor((Date.now() - asOf) / 1000);
+    if (elapsed < 0) elapsed = 0;
+    var d = Math.floor(elapsed / 86400);
+    var h = Math.floor((elapsed % 86400) / 3600);
+    var m = Math.floor((elapsed % 3600) / 60);
+    var s = elapsed % 60;
+    el.textContent = d + 'd ' + h + 'h ' + pad(m) + 'm ' + pad(s) + 's';
+  }
+
+  render();
+  setInterval(render, 1000);
+})();
+</script>
+
+<script>
+(function(){
+  // Live view counts for every clip card across the site (Most Recent
+  // Streams, Johnny Apple Clipz, The Tony Schitzo Section). One batched
+  // YouTube Data API call covers every video at once — cheaper and faster
+  // than a separate request per card — and reuses the same key plus the
+  // same relay fallback chain as the channel stat tiles, refreshing hourly.
+  var badges = document.querySelectorAll('.stream-view-badge');
+  if (!badges.length) return;
+
+  var YT_KEY = 'AIzaSyC-bR5OiOA7DRBfejn_JTe1-rA-8b0xa5o';
+
+  var RELAYS = [
+    function(url){ return 'https://api.allorigins.win/raw?url=' + encodeURIComponent(url); },
+    function(url){ return 'https://api.codetabs.com/v1/proxy?quest=' + encodeURIComponent(url); },
+    function(url){ return 'https://corsproxy.io/?url=' + encodeURIComponent(url); }
+  ];
+
+  function compactNum(n){
+    try { return new Intl.NumberFormat('en', { notation: 'compact' }).format(n); }
+    catch (e) { return String(n); }
+  }
+
+  function videosUrl(ids){
+    return 'https://www.googleapis.com/youtube/v3/videos?part=statistics'
+      + '&id=' + encodeURIComponent(ids.join(','))
+      + '&key=' + encodeURIComponent(YT_KEY);
+  }
+
+  function fetchJSON(url){
+    return fetch(url).then(function(res){
+      if (!res.ok) throw new Error('http ' + res.status);
+      return res.json();
+    });
+  }
+
+  function fetchViaRelay(url, i){
+    i = i || 0;
+    if (i >= RELAYS.length) return Promise.reject(new Error('all relays failed'));
+    return fetchJSON(RELAYS[i](url)).catch(function(err){
+      console.warn('The Tony Verse Directory: clip-views relay', i + 1, 'of', RELAYS.length, 'failed', err);
+      return fetchViaRelay(url, i + 1);
+    });
+  }
+
+  function badgeVideoId(badge){
+    var wrap = badge.closest('.stream-title-wrap');
+    return wrap && wrap.getAttribute('data-video-id');
+  }
+
+  function load(){
+    var ids = [];
+    badges.forEach(function(badge){
+      var id = badgeVideoId(badge);
+      if (id && ids.indexOf(id) === -1) ids.push(id);
+    });
+    if (!ids.length) return;
+
+    var url = videosUrl(ids);
+    fetchJSON(url)
+      .catch(function(err){
+        console.warn('The Tony Verse Directory: clip views direct fetch failed', err);
+        return fetchViaRelay(url);
+      })
+      .then(function(data){
+        var counts = {};
+        (data.items || []).forEach(function(item){
+          counts[item.id] = item.statistics && item.statistics.viewCount;
+        });
+        badges.forEach(function(badge){
+          var id = badgeVideoId(badge);
+          var count = id && counts[id];
+          if (count == null) return;
+          var countEl = badge.querySelector('.stream-view-count');
+          if (countEl) countEl.textContent = compactNum(Number(count)) + ' views';
+          badge.classList.add('is-visible');
+        });
+      })
+      .catch(function(err){
+        console.warn('The Tony Verse Directory: clip views unavailable this round', err);
+      });
+  }
+
+  load();
+  setInterval(load, 3600000);
+})();
+</script>
+
+</body></html>
